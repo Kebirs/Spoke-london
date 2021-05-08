@@ -1,18 +1,19 @@
-from typing import List
-
 import pandas as pd
 
 
 class SpokeScraperCore(object):
     def __init__(self):
         super(SpokeScraperCore, self).__init__()
-        self.de_encoding = 'UTF-8'
-        self.eng_encoding = 'UTF-8'
-        self.main_data = []
+        self.homepage_data = []
 
     def main_output_data(self, data):
-        self.main_data.append(data)
-        df = pd.DataFrame(self.main_data)
-        df.to_csv('spoke-london1.csv')
-        df.to_excel('spoke-london1.xlsx', index=False)
+        self.homepage_data.append(data)
+
+        homepage_df = pd.DataFrame(self.homepage_data).apply(lambda x: pd.Series(x.dropna().values))
+
+        writer = pd.ExcelWriter('spoke-london-test.xlsx')
+
+        homepage_df.to_excel(writer, sheet_name='Homepage.xlsx', index=False)
+
+        writer.save()
 

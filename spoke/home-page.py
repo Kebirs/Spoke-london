@@ -10,7 +10,13 @@ import re
 from bs4 import BeautifulSoup as bs
 from lxml import html
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
+from webdriver_manager import driver
 from webdriver_manager.chrome import ChromeDriverManager as CM
+from selenium.webdriver.support import expected_conditions as EC
 from spoke.main import SpokeScraperCore
 
 # TODO make it as func to init selenium
@@ -23,35 +29,41 @@ class BrandPageStatic(SpokeScraperCore):
 
     def __init__(self):
         super(BrandPageStatic, self).__init__()
+        self.ENG = 'ENG '
+        self.DE = 'DE '
         self.scrape_content()
 
     def scrape_content(self):
         # For both lang; eng and de side by side in columns
-        url_eng = 'https://spoke-london.com'
-        url_de = 'https://spoke-london.com/de/'
+        eng_url = 'https://spoke-london.com/gb'
+        de_url = 'https://spoke-london.com/de/'
 
-        self.main_output_data(self.over_navbar_info(url_eng, 'ENG', self.eng_encoding))
-        self.main_output_data(self.over_navbar_info(url_de, 'DE', self.de_encoding))
+        # self.main_output_data(self.over_navbar_info(eng_url, self.ENG))
+        # self.main_output_data(self.over_navbar_info(de_url, self.DE))
 
-        self.menu_content(url_eng, url_de)
+        self.main_output_data(self.menu_content(eng_url, de_url))
+        # self.main_output_data(self.menu_content(url_de, self.DE))
 
         # banners_url_eng = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=en-GB&include=6'
         # banners_url_de = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=de-DE&include=6'
-        # self.main_output_data(self.banners_content(banners_url_eng))
-        # self.main_output_data(self.banners_content(banners_url_de))
+        # self.main_output_data(self.banners_content(banners_url_eng, banners_url_de))
+        # # self.main_output_data(self.banners_content(banners_url_de, self.DE))
         #
-        # self.main_output_data(self.footer_content(url_eng))
-        # self.main_output_data(self.footer_content(url_de))
+        # self.main_output_data(self.footer_content(eng_url, self.ENG))
+        # self.main_output_data(self.footer_content(de_url, self.DE))
+        #
+        # self.main_output_data(self.help_button_content(eng_url, self.ENG))
+        # self.main_output_data(self.help_button_content(de_url, self.DE))
 
     @staticmethod
     def get_request(url):
         s = cloudscraper.create_scraper()
         r = s.get(url)
+        r.encoding = 'UTF-8'
         return r
 
-    def json_script_data(self, url, encoding):
+    def json_script_data(self, url):
         resp = self.get_request(url)
-        resp.encoding = encoding
         script_data = html.fromstring(resp.text).xpath('//script[@id="__NEXT_DATA__"]/text()')
         true = 'true'
         false = 'false'
@@ -59,85 +71,135 @@ class BrandPageStatic(SpokeScraperCore):
         script_data_json = eval(script_data[0])
         return script_data_json
 
-    def over_navbar_info(self, url, lang, encoding):
+    def over_navbar_info(self, url, lang):
         data = {}
-        script_data = self.json_script_data(url, encoding)
+        script_data = self.json_script_data(url)
         over_navbar_text = script_data['props']['initialState']['header']['menu'][
             'items'][0]['flashBanner']['flashBannerItems'][
             'items'][0]['bannerName']
         data[lang + ' Brand Homepage - Over Navbar Info'] = over_navbar_text
         return data
 
-    def menu_content(self, url_eng, url_de):
-        script_data_eng = self.json_script_data(url_eng, self.eng_encoding)
-        script_data_de = self.json_script_data(url_de, self.de_encoding)
-        scripts = [script_data_eng, script_data_de]
-        # header_text = script_data_eng['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
+    def menu_content(self, eng_url, de_url):
+        eng_script_data = self.json_script_data(eng_url)
+        de_script_data = self.json_script_data(de_url)
 
-        for i, _ in enumerate(scripts):
-            header_text = _['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
-            data = {}
-            data[' Main menu titles'] = [(i['title']) for i in header_text]
+        eng_header_text = eng_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
+        de_header_text = de_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
 
-            data[' Main menu titles dropdown'] = [(j['title']) for i in header_text
-                                                  for j in i['secondaryNavigation']['items']]
+        data = {}
 
-            data[' Main menu titles dropdown additional'] = [(k['title'],
-                                                              k['card']['description'],
-                                                              k['card']['byline'],
-                                                              k['card']['badge']['title'] if k['card'][
-                                                                                                 'badge'] != 'null' else None,
-                                                              k['card']['button']['text'])
-                                                             for i in header_text
-                                                             for j in i['secondaryNavigation']['items']
-                                                             for k in j['tertiaryNavigation']['items']]
+        self._menu_titles(data, self.ENG, eng_header_text)
+        self._menu_titles(data, self.DE, de_header_text)
 
-            data[' Main menu NEW IN submenu'] = [(j['title'],
-                                                  j['byline'],
-                                                  j['description'],
-                                                  j['badge']['title'] if j['badge'] != 'null' else None)
-                                                 for i in header_text if i['title'] == 'New In' or i['title'] == 'NEU'
-                                                 for j in i['submenuLayout']['grid']['items']]
+        self._menu_titles_dropdown(data, self.ENG, eng_header_text)
+        self._menu_titles_dropdown(data, self.DE, de_header_text)
 
-            data[' Right menu content'] = (_['props']['initialState'][
-                                               'header']['menu']['items'][0]['desktop']['secondaryNavigation'][
-                                               'items'][0]['title'], 'Log In')
+        self._menu_titles_dropdown_additional(data, self.ENG, eng_header_text)
+        self._menu_titles_dropdown_additional(data, self.DE, de_header_text)
 
-            self.main_output_data(data)
+        self._menu_new_in_card_submenu(data, self.ENG, eng_header_text)
+        self._menu_new_in_card_submenu(data, self.DE, de_header_text)
 
-    def banners_content(self, url):
+        self._menu_right_side(data, self.ENG, eng_script_data)
+        self._menu_right_side(data, self.DE, de_script_data)
+
+        # Probably not most efficient way but i dont have other idea
+        # data[self.ENG + 'Main menu titles'] = [(i['title']) for i in eng_header_text]
+        # data[self.DE + 'Main menu titles'] = [(i['title']) for i in de_header_text]
+
+        # data[self.ENG + 'Main menu titles dropdown'] = [(j['title']) for i in eng_header_text for j in i['secondaryNavigation']['items']]
+        # data[self.DE + 'Main menu titles dropdown'] = [(j['title']) for i in de_header_text for j in i['secondaryNavigation']['items']]
+
+        # data[self.ENG + 'Main menu titles dropdown additional'] = [(k['title'],k['card']['description'],k['card']['byline'],k['card']['badge']['title'] if k['card']['badge'] != 'null' else None,k['card']['button']['text'])for i in eng_header_text for j in i['secondaryNavigation']['items'] for k in j['tertiaryNavigation']['items']]
+        # data[self.DE + 'Main menu titles dropdown additional'] = [(k['title'],k['card']['description'],k['card']['byline'],k['card']['badge']['title'] if k['card']['badge'] != 'null' else None,k['card']['button']['text'])for i in de_header_text for j in i['secondaryNavigation']['items'] for k in j['tertiaryNavigation']['items']]
+
+        # data[self.ENG + 'Main menu NEW IN submenu'] = [(j['title'],j['byline'],j['description'],j['badge']['title'] if j['badge'] != 'null' else None) for i in eng_header_text if i['title'] == 'New In' or i['title'] == 'NEU' for j in i['submenuLayout']['grid']['items']]
+        # data[self.DE + 'Main menu NEW IN submenu'] = [(j['title'],j['byline'],j['description'],j['badge']['title'] if j['badge'] != 'null' else None) for i in de_header_text if i['title'] == 'New In' or i['title'] == 'NEU' for j in i['submenuLayout']['grid']['items']]
+
+        # data[self.ENG + 'Right menu content'] = (eng_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'], 'Log In')
+        # data[self.DE + 'Right menu content'] = (de_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'], 'Log In')
+
+        return data
+
+    @staticmethod
+    def _menu_titles(data, lang, target_text):
+        data[lang + 'Main menu titles'] = [(i['title']) for i in target_text]
+
+    @staticmethod
+    def _menu_titles_dropdown(data, lang, target_text):
+        data[lang + 'Main menu titles dropdown'] = [(j['title']) for i in target_text for j in
+                                                    i['secondaryNavigation']['items']]
+
+    @staticmethod
+    def _menu_titles_dropdown_additional(data, lang, target_text):
+        data[lang + 'Main menu titles dropdown additional'] = [(k['title'], k['card']['description'],
+                                                                k['card']['byline'],
+                                                                k['card']['badge']['title'] if k['card'][
+                                                                                                   'badge'] != 'null' else None,
+                                                                k['card']['button']['text']) for i in
+                                                               target_text for j in
+                                                               i['secondaryNavigation']['items'] for k in
+                                                               j['tertiaryNavigation']['items']]
+
+    @staticmethod
+    def _menu_new_in_card_submenu(data, lang, target_text):
+        data[lang + 'Main menu NEW IN submenu'] = [
+            (j['title'], j['byline'], j['description'], j['badge']['title'] if j['badge'] != 'null' else None) for i in
+            target_text if i['title'] == 'New In' or i['title'] == 'NEU' for j in
+            i['submenuLayout']['grid']['items']]
+
+    @staticmethod
+    def _menu_right_side(data, lang, target_text):
+        data[lang + 'Right menu content'] = (target_text['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'], 'Log In')
+
+    def banners_content(self, eng_url, de_url):
         auth = {
             'Authorization': 'Bearer 56If-j-ANNWSZ9Zk_8lp9EChokF6LNtKJDHC8eHMfSs',
             'If-None-Match': 'W/"16729328500904452549"'
         }
         s = cloudscraper.create_scraper()
-        r = s.get(url, headers=auth)
-        content = r.json()
+        # English response
+        eng_r = s.get(eng_url, headers=auth)
+        eng_r.encoding = 'UTF-8'
+        eng_content = eng_r.json()
+
+        # Deutsch response
+        de_r = s.get(de_url, headers=auth)
+        de_r.encoding = 'UTF-8'
+        de_content = de_r.json()
 
         data = {}
-        benefits = []
-        mobile = []
-        clothes = []
-        additional = []
-        comments = []
+        eng_benefits, de_benefits = [], []
+        eng_mobile, de_mobile = [], []
+        eng_clothes, de_clothes = [], []
+        eng_additional, de_additional = [], []
+        eng_comments, de_comments = [], []
 
-        all_contents = content['includes']['Entry']
+        eng_all_contents = eng_content['includes']['Entry']
+        de_all_contents = de_content['includes']['Entry']
 
-        for content in all_contents:
+        for eng_content, de_content in zip(eng_all_contents, de_all_contents):
             try:
                 try:
                     # Content names as name of banner field
-                    content_name = content['fields']['contentName']
-
-
+                    content_name = eng_content['fields']['contentName']
                 except KeyError:
                     content_name = None
 
-                self.banner_benefits(content, content_name, benefits)
-                self.banner_mobile(content, content_name, mobile)
-                self.banner_clothes(content, content_name, clothes)
-                self.over_brands_text(content,  additional)
-                self.comments_content(content, content_name, comments)
+                # ENGLISH
+                self.banner_benefits(eng_content, content_name, eng_benefits)
+                self.banner_mobile(eng_content, content_name, eng_mobile)
+                self.banner_clothes(eng_content, content_name, eng_clothes)
+                self.over_brands_text(eng_content, eng_additional)
+                self.comments_content(eng_content, content_name, eng_comments)
+
+                # DEUTSCH
+                self.banner_benefits(de_content, content_name, de_benefits)
+                self.banner_mobile(de_content, content_name, de_mobile)
+                self.banner_clothes(de_content, content_name, de_clothes)
+                self.over_brands_text(de_content, de_additional)
+                self.comments_content(de_content, content_name, de_comments)
 
                 # Banner with animate mobile phone button's
                 # if re.compile('.*FineTuneFit.*').match(str(content_button)):
@@ -146,11 +208,21 @@ class BrandPageStatic(SpokeScraperCore):
 
             except KeyError:
                 continue
-        data[self.ENG + ' Banner Benefits Content'] = benefits
-        data[self.ENG + ' Banner Mobile Animation Content'] = mobile
-        data[self.ENG + ' Banner Clothes Content'] = clothes
-        data[self.ENG + ' Additional Content'] = additional
-        data[self.ENG + ' Comments Content'] = comments
+
+        data[self.ENG + ' Banner Benefits Content'] = eng_benefits
+        data[self.DE + ' Banner Benefits Content'] = de_benefits
+
+        data[self.ENG + ' Banner Mobile Animation Content'] = eng_mobile
+        data[self.DE + ' Banner Mobile Animation Content'] = de_mobile
+
+        data[self.ENG + ' Banner Clothes Content'] = eng_clothes
+        data[self.DE + ' Banner Clothes Content'] = de_clothes
+
+        data[self.ENG + ' Additional Content'] = eng_additional
+        data[self.DE + ' Additional Content'] = de_additional
+
+        data[self.ENG + ' Comments Content'] = eng_comments
+        data[self.DE + ' Comments Content'] = de_comments
 
         # Banners
 
@@ -201,28 +273,74 @@ class BrandPageStatic(SpokeScraperCore):
     @staticmethod
     def comments_content(content, content_name, comments):
         # Banner with comments
-        if re.compile(r'(Testimonial|Testimonials) Homepage (First|second|Third|Fourth) (item|Item|Item )').match(str(content_name)):
-            print(1)
+        if re.compile(r'(Testimonial|Testimonials) Homepage (First|second|Third|Fourth) (item|Item|Item )').match(
+                str(content_name)):
             title = content['fields']['title']
             name = content['fields']['underTitle']
             comments.append(title)
             comments.append(name)
 
-
-    def footer_content(self, url):
+    @staticmethod
+    def footer_content(url, lang):
         browser.get(url)
         time.sleep(3)
         data = {}
         sub_data = []
-        sub_data.append(browser.find_element_by_xpath('/html/body/div[1]/main/div/div[3]/footer/div[1]/div/div/div[1]/div/div/div').text.strip().replace('\n', ', '))
+        sub_data.append(browser.find_element_by_xpath(
+            '/html/body/div[1]/main/div/div[3]/footer/div[1]/div/div/div[1]/div/div/div').text.strip().replace('\n',
+                                                                                                               ', '))
         sub_data.append(browser.find_element_by_xpath('//input[@id="email"]').get_attribute('placeholder'))
-        sub_data.append('Please enter an email')
-        sub_data.append(browser.find_element_by_xpath('//div[@class="styles_footerBaseContent__15eHp"]').text.strip().replace('\n', ', '))
-        sub_data.append(browser.find_element_by_xpath("//div[contains(@class, 'styles_footerWrap__26rQ6')]").text.strip().replace('\n', ', '))
 
-        data[self.ENG + ' FOOTER'] = sub_data
-        print(data)
+        sub_data.append(
+            browser.find_element_by_xpath('//div[@class="styles_footerBaseContent__15eHp"]').text.strip().replace('\n',
+                                                                                                                  ', '))
+        sub_data.append(
+            browser.find_element_by_xpath("//div[contains(@class, 'styles_footerWrap__26rQ6')]").text.strip().replace(
+                '\n', ', '))
+
+        email = browser.find_element_by_xpath('//input[@id="email"]')
+        email.send_keys(Keys.END)
+        email.click()
+        browser.find_element_by_xpath('/html/body/div[1]/main/div/div[3]/div/div').click()
+        sub_data.append(browser.find_element_by_xpath('//p[@class="form__error"]').text)
+
+        data[lang + 'FOOTER'] = sub_data
         return data
+
+    @staticmethod
+    def help_button_content(url, lang):
+        browser.get(url)
+        time.sleep(3)
+        data = {}
+        sub_data = []
+        email = browser.find_element_by_xpath('//input[@id="email"]')
+        email.send_keys(Keys.END)
+
+        iframe = WebDriverWait(browser, 10).until(
+            EC.visibility_of_element_located((By.XPATH, '//iframe[@id="launcher"]')))
+        browser.switch_to.frame(iframe)
+
+        help_button = browser.find_element_by_xpath('//button[@aria-haspopup="true"]')
+        sub_data.append(help_button.text)
+        help_button.click()
+        time.sleep(2)
+
+        browser.switch_to.default_content()
+
+        iframe2 = WebDriverWait(browser, 10).until(
+            EC.visibility_of_element_located((By.XPATH, '//iframe[@id="webWidget"]')))
+        browser.switch_to.frame(iframe2)
+
+        help_button_text = browser.find_element_by_xpath('//div[@data-embed="helpCenterForm"]').text.strip().replace(
+            '\n', ', ')
+        help_placeholder = browser.find_element_by_xpath('//input[@type="search"]').get_attribute('placeholder')
+
+        sub_data.append(help_button_text)
+        sub_data.append(help_placeholder)
+
+        data[lang + 'HELP BUTTON'] = sub_data
+        return data
+
 
 if __name__ == '__main__':
     BrandPageStatic()
