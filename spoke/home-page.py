@@ -19,45 +19,17 @@ from webdriver_manager.chrome import ChromeDriverManager as CM
 from selenium.webdriver.support import expected_conditions as EC
 from spoke.main import SpokeScraperCore
 
-# TODO make it as func to init selenium
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")
-browser = webdriver.Chrome(executable_path=CM().install(), options=options)
 
-
-class BrandPageStatic(SpokeScraperCore):
-
+class Settings(object):
     def __init__(self):
-        super(BrandPageStatic, self).__init__()
+        super(Settings, self).__init__()
         self.ENG = 'ENG '
         self.DE = 'DE '
-        self.scrape_content()
-
-    def scrape_content(self):
-        # For both lang; eng and de side by side in columns
-        eng_url = 'https://spoke-london.com/gb'
-        de_url = 'https://spoke-london.com/de/'
-
-        # self.main_output_data(self.over_navbar_info(eng_url, self.ENG))
-        # self.main_output_data(self.over_navbar_info(de_url, self.DE))
-
-        self.main_output_data(self.menu_content(eng_url, de_url))
-        # self.main_output_data(self.menu_content(url_de, self.DE))
-
-        # banners_url_eng = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=en-GB&include=6'
-        # banners_url_de = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=de-DE&include=6'
-        # self.main_output_data(self.banners_content(banners_url_eng, banners_url_de))
-        # # self.main_output_data(self.banners_content(banners_url_de, self.DE))
-        #
-        # self.main_output_data(self.footer_content(eng_url, self.ENG))
-        # self.main_output_data(self.footer_content(de_url, self.DE))
-        #
-        # self.main_output_data(self.help_button_content(eng_url, self.ENG))
-        # self.main_output_data(self.help_button_content(de_url, self.DE))
 
     @staticmethod
     def get_request(url):
         s = cloudscraper.create_scraper()
+
         r = s.get(url)
         r.encoding = 'UTF-8'
         return r
@@ -70,6 +42,28 @@ class BrandPageStatic(SpokeScraperCore):
         null = 'null'
         script_data_json = eval(script_data[0])
         return script_data_json
+
+    @staticmethod
+    def _selenium():
+        options = webdriver.ChromeOptions()
+        options.add_argument("--headless")
+        browser = webdriver.Chrome(executable_path=CM().install(), options=options)
+        return browser
+
+    @staticmethod
+    def _selenium_lang(lang):
+        options = webdriver.ChromeOptions()
+        options.add_argument("--headless")
+        # proxy = '182.54.239.91:8108'
+        # options.add_argument(f'--proxy-server=http://{proxy}')
+        options.add_argument(f'--lang={lang}')
+        browser = webdriver.Chrome(executable_path=CM().install(), options=options)
+        return browser
+
+
+class Menu(Settings):
+    def __init__(self):
+        super(Menu, self).__init__()
 
     def over_navbar_info(self, url, lang):
         data = {}
@@ -84,8 +78,10 @@ class BrandPageStatic(SpokeScraperCore):
         eng_script_data = self.json_script_data(eng_url)
         de_script_data = self.json_script_data(de_url)
 
-        eng_header_text = eng_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
-        de_header_text = de_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
+        eng_header_text = \
+        eng_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
+        de_header_text = \
+        de_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
 
         data = {}
 
@@ -103,22 +99,6 @@ class BrandPageStatic(SpokeScraperCore):
 
         self._menu_right_side(data, self.ENG, eng_script_data)
         self._menu_right_side(data, self.DE, de_script_data)
-
-        # Probably not most efficient way but i dont have other idea
-        # data[self.ENG + 'Main menu titles'] = [(i['title']) for i in eng_header_text]
-        # data[self.DE + 'Main menu titles'] = [(i['title']) for i in de_header_text]
-
-        # data[self.ENG + 'Main menu titles dropdown'] = [(j['title']) for i in eng_header_text for j in i['secondaryNavigation']['items']]
-        # data[self.DE + 'Main menu titles dropdown'] = [(j['title']) for i in de_header_text for j in i['secondaryNavigation']['items']]
-
-        # data[self.ENG + 'Main menu titles dropdown additional'] = [(k['title'],k['card']['description'],k['card']['byline'],k['card']['badge']['title'] if k['card']['badge'] != 'null' else None,k['card']['button']['text'])for i in eng_header_text for j in i['secondaryNavigation']['items'] for k in j['tertiaryNavigation']['items']]
-        # data[self.DE + 'Main menu titles dropdown additional'] = [(k['title'],k['card']['description'],k['card']['byline'],k['card']['badge']['title'] if k['card']['badge'] != 'null' else None,k['card']['button']['text'])for i in de_header_text for j in i['secondaryNavigation']['items'] for k in j['tertiaryNavigation']['items']]
-
-        # data[self.ENG + 'Main menu NEW IN submenu'] = [(j['title'],j['byline'],j['description'],j['badge']['title'] if j['badge'] != 'null' else None) for i in eng_header_text if i['title'] == 'New In' or i['title'] == 'NEU' for j in i['submenuLayout']['grid']['items']]
-        # data[self.DE + 'Main menu NEW IN submenu'] = [(j['title'],j['byline'],j['description'],j['badge']['title'] if j['badge'] != 'null' else None) for i in de_header_text if i['title'] == 'New In' or i['title'] == 'NEU' for j in i['submenuLayout']['grid']['items']]
-
-        # data[self.ENG + 'Right menu content'] = (eng_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'], 'Log In')
-        # data[self.DE + 'Right menu content'] = (de_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'], 'Log In')
 
         return data
 
@@ -151,7 +131,14 @@ class BrandPageStatic(SpokeScraperCore):
 
     @staticmethod
     def _menu_right_side(data, lang, target_text):
-        data[lang + 'Right menu content'] = (target_text['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'], 'Log In')
+        data[lang + 'Right menu content'] = (
+        target_text['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][
+            0]['title'], 'Log In')
+
+
+class Banners(Settings):
+    def __init__(self):
+        super(Banners, self).__init__()
 
     def banners_content(self, eng_url, de_url):
         auth = {
@@ -280,60 +267,92 @@ class BrandPageStatic(SpokeScraperCore):
             comments.append(title)
             comments.append(name)
 
-    @staticmethod
-    def footer_content(url, lang):
-        browser.get(url)
+
+class Footer(Settings):
+    def __init__(self):
+        super(Footer, self).__init__()
+
+
+    def footer_content(self, url, lang):
+        s = self._selenium()
+        s.get(url)
         time.sleep(3)
         data = {}
         sub_data = []
-        sub_data.append(browser.find_element_by_xpath(
+        sub_data.append(s.find_element_by_xpath(
             '/html/body/div[1]/main/div/div[3]/footer/div[1]/div/div/div[1]/div/div/div').text.strip().replace('\n',
                                                                                                                ', '))
-        sub_data.append(browser.find_element_by_xpath('//input[@id="email"]').get_attribute('placeholder'))
+        sub_data.append(s.find_element_by_xpath('//input[@id="email"]').get_attribute('placeholder'))
 
         sub_data.append(
-            browser.find_element_by_xpath('//div[@class="styles_footerBaseContent__15eHp"]').text.strip().replace('\n',
+            s.find_element_by_xpath('//div[@class="styles_footerBaseContent__15eHp"]').text.strip().replace('\n',
                                                                                                                   ', '))
         sub_data.append(
-            browser.find_element_by_xpath("//div[contains(@class, 'styles_footerWrap__26rQ6')]").text.strip().replace(
+            s.find_element_by_xpath("//div[contains(@class, 'styles_footerWrap__26rQ6')]").text.strip().replace(
                 '\n', ', '))
 
-        email = browser.find_element_by_xpath('//input[@id="email"]')
+        email = s.find_element_by_xpath('//input[@id="email"]')
         email.send_keys(Keys.END)
         email.click()
-        browser.find_element_by_xpath('/html/body/div[1]/main/div/div[3]/div/div').click()
-        sub_data.append(browser.find_element_by_xpath('//p[@class="form__error"]').text)
+        s.find_element_by_xpath('/html/body/div[1]/main/div/div[3]/div/div').click()
+        sub_data.append(s.find_element_by_xpath('//p[@class="form__error"]').text)
 
         data[lang + 'FOOTER'] = sub_data
         return data
 
-    @staticmethod
-    def help_button_content(url, lang):
-        browser.get(url)
+
+class BrandHomePage(SpokeScraperCore, Menu, Banners, Footer):
+
+    def __init__(self):
+        super(BrandHomePage, self).__init__()
+        self.scrape_content()
+
+    def scrape_content(self):
+        # For both lang; eng and de side by side in columns
+        eng_url = 'https://spoke-london.com/gb'
+        de_url = 'https://spoke-london.com/de/'
+        banners_url_eng = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=en-GB&include=6'
+        banners_url_de = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=de-DE&include=6'
+
+        self.main_output_data(self.over_navbar_info(eng_url, self.ENG))
+        self.main_output_data(self.over_navbar_info(de_url, self.DE))
+
+        self.main_output_data(self.menu_content(eng_url, de_url))
+
+        self.main_output_data(self.banners_content(banners_url_eng, banners_url_de))
+
+        self.main_output_data(self.footer_content(eng_url, self.ENG))
+        self.main_output_data(self.footer_content(de_url, self.DE))
+
+        self.main_output_data(self.help_button_content(eng_url, self.ENG, 'en'))
+        self.main_output_data(self.help_button_content(de_url, self.DE, 'de'))
+
+    def help_button_content(self, url, lang, selenium_lang):
+        s = self._selenium_lang(selenium_lang)
+        s.get(url)
         time.sleep(3)
         data = {}
         sub_data = []
-        email = browser.find_element_by_xpath('//input[@id="email"]')
+        email = s.find_element_by_xpath('//input[@id="email"]')
         email.send_keys(Keys.END)
-
-        iframe = WebDriverWait(browser, 10).until(
+        iframe = WebDriverWait(s, 10).until(
             EC.visibility_of_element_located((By.XPATH, '//iframe[@id="launcher"]')))
-        browser.switch_to.frame(iframe)
+        s.switch_to.frame(iframe)
 
-        help_button = browser.find_element_by_xpath('//button[@aria-haspopup="true"]')
+        help_button = s.find_element_by_xpath('//button[@aria-haspopup="true"]')
         sub_data.append(help_button.text)
         help_button.click()
         time.sleep(2)
 
-        browser.switch_to.default_content()
+        s.switch_to.default_content()
 
-        iframe2 = WebDriverWait(browser, 10).until(
+        iframe2 = WebDriverWait(s, 10).until(
             EC.visibility_of_element_located((By.XPATH, '//iframe[@id="webWidget"]')))
-        browser.switch_to.frame(iframe2)
+        s.switch_to.frame(iframe2)
 
-        help_button_text = browser.find_element_by_xpath('//div[@data-embed="helpCenterForm"]').text.strip().replace(
+        help_button_text = s.find_element_by_xpath('//div[@data-embed="helpCenterForm"]').text.strip().replace(
             '\n', ', ')
-        help_placeholder = browser.find_element_by_xpath('//input[@type="search"]').get_attribute('placeholder')
+        help_placeholder = s.find_element_by_xpath('//input[@type="search"]').get_attribute('placeholder')
 
         sub_data.append(help_button_text)
         sub_data.append(help_placeholder)
@@ -343,4 +362,4 @@ class BrandPageStatic(SpokeScraperCore):
 
 
 if __name__ == '__main__':
-    BrandPageStatic()
+    BrandHomePage()
