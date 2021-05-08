@@ -54,8 +54,6 @@ class Settings(object):
     def _selenium_lang(lang):
         options = webdriver.ChromeOptions()
         options.add_argument("--headless")
-        # proxy = '182.54.239.91:8108'
-        # options.add_argument(f'--proxy-server=http://{proxy}')
         options.add_argument(f'--lang={lang}')
         browser = webdriver.Chrome(executable_path=CM().install(), options=options)
         return browser
@@ -78,10 +76,8 @@ class Menu(Settings):
         eng_script_data = self.json_script_data(eng_url)
         de_script_data = self.json_script_data(de_url)
 
-        eng_header_text = \
-        eng_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
-        de_header_text = \
-        de_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
+        eng_header_text = eng_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
+        de_header_text = de_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
 
         data = {}
 
@@ -131,9 +127,7 @@ class Menu(Settings):
 
     @staticmethod
     def _menu_right_side(data, lang, target_text):
-        data[lang + 'Right menu content'] = (
-        target_text['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][
-            0]['title'], 'Log In')
+        data[lang + 'Right menu content'] = (target_text['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'])
 
 
 class Banners(Settings):
@@ -157,6 +151,7 @@ class Banners(Settings):
         de_content = de_r.json()
 
         data = {}
+        eng_first_banner, de_first_banner = [], []
         eng_benefits, de_benefits = [], []
         eng_mobile, de_mobile = [], []
         eng_clothes, de_clothes = [], []
@@ -175,6 +170,7 @@ class Banners(Settings):
                     content_name = None
 
                 # ENGLISH
+                self.first_banner(eng_content, eng_first_banner)
                 self.banner_benefits(eng_content, content_name, eng_benefits)
                 self.banner_mobile(eng_content, content_name, eng_mobile)
                 self.banner_clothes(eng_content, content_name, eng_clothes)
@@ -182,6 +178,7 @@ class Banners(Settings):
                 self.comments_content(eng_content, content_name, eng_comments)
 
                 # DEUTSCH
+                self.first_banner(de_content, de_first_banner)
                 self.banner_benefits(de_content, content_name, de_benefits)
                 self.banner_mobile(de_content, content_name, de_mobile)
                 self.banner_clothes(de_content, content_name, de_clothes)
@@ -195,6 +192,9 @@ class Banners(Settings):
 
             except KeyError:
                 continue
+
+        data[self.ENG + ' Home Banner Content'] = eng_first_banner
+        data[self.DE + ' Home Banner Content'] = de_first_banner
 
         data[self.ENG + ' Banner Benefits Content'] = eng_benefits
         data[self.DE + ' Banner Benefits Content'] = de_benefits
@@ -211,9 +211,28 @@ class Banners(Settings):
         data[self.ENG + ' Comments Content'] = eng_comments
         data[self.DE + ' Comments Content'] = de_comments
 
-        # Banners
-
         return data
+
+    @staticmethod
+    def first_banner(content, first_banner):
+        # TODO: button name
+        try:
+            typ = content['sys']['contentType']['sys']['id']
+        except KeyError:
+            typ = None
+        try:
+            badge = content['fields']['badgeType']
+        except KeyError:
+            badge = None
+        if typ:
+            if typ == 'carouselImage':
+                title = content['fields']['title']
+                subtitle = content['fields']['subtitle']
+                first_banner.append(title)
+                first_banner.append(subtitle)
+        if badge:
+            badge = content['fields']['title']
+            first_banner.append(badge)
 
     @staticmethod
     def banner_benefits(content, content_name, benefits):
@@ -253,9 +272,15 @@ class Banners(Settings):
 
     @staticmethod
     def over_brands_text(content, additional):
-        text = content['fields']['title']
-        if text == 'As seen in':
-            additional.append(text)
+        path = content['fields']
+        try:
+            text = path['typeAlign']
+        except KeyError:
+            text = None
+        if text:
+            if text == 'icons-only':
+                text = path['title']
+                additional.append(text)
 
     @staticmethod
     def comments_content(content, content_name, comments):
@@ -272,7 +297,6 @@ class Footer(Settings):
     def __init__(self):
         super(Footer, self).__init__()
 
-
     def footer_content(self, url, lang):
         s = self._selenium()
         s.get(url)
@@ -286,7 +310,7 @@ class Footer(Settings):
 
         sub_data.append(
             s.find_element_by_xpath('//div[@class="styles_footerBaseContent__15eHp"]').text.strip().replace('\n',
-                                                                                                                  ', '))
+                                                                                                            ', '))
         sub_data.append(
             s.find_element_by_xpath("//div[contains(@class, 'styles_footerWrap__26rQ6')]").text.strip().replace(
                 '\n', ', '))
