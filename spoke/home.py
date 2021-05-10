@@ -2,67 +2,16 @@ import time
 import cloudscraper
 import re
 from lxml import html
-from selenium import webdriver
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager as CM
+
 from selenium.webdriver.support import expected_conditions as EC
-from spoke.main import SpokeScraperCore
+from spoke.main import DataWriter, Settings
 
 
-class Settings(object):
-    def __init__(self):
-        super(Settings, self).__init__()
-        self.ENG = 'ENG '
-        self.DE = 'DE '
-        self.languages_list = [self.ENG, self.DE]
-
-    @staticmethod
-    def get_request(url):
-        s = cloudscraper.create_scraper()
-
-        r = s.get(url)
-        r.encoding = 'UTF-8'
-        return r
-
-    def json_script_data(self, url):
-        """
-        Evaluate data into json format
-        :param url:
-        :return data formatted into json:
-        """
-        resp = self.get_request(url)
-        script_data = html.fromstring(resp.text).xpath('//script[@id="__NEXT_DATA__"]/text()')
-        true = 'true'
-        false = 'false'
-        null = 'null'
-        script_data_json = eval(script_data[0])
-        return script_data_json
-
-
-    @staticmethod
-    def _selenium():
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
-        browser = webdriver.Chrome(executable_path=CM().install(), options=options)
-        return browser
-
-    @staticmethod
-    def _selenium_lang(lang):
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
-        options.add_argument(f'--lang={lang}')
-        browser = webdriver.Chrome(executable_path=CM().install(), options=options)
-        return browser
-
-    def get_cdn_id(self, url):
-        script_data_json = self.json_script_data(url)
-        cdn = script_data_json['query']['contentfulId']
-        return str(cdn)
-
-
-class Menu(Settings, SpokeScraperCore):
+class Menu(Settings, DataWriter):
     def __init__(self):
         super(Menu, self).__init__()
 
@@ -73,7 +22,7 @@ class Menu(Settings, SpokeScraperCore):
         over_navbar_text = script_data['props']['initialState']['header']['menu']['items'][0]['flashBanner']['flashBannerItems']['items'][0]['bannerName']
         data['Brand Homepage - Over Navbar Info'] = over_navbar_text
 
-        self.main_output_data(data)
+        self.home_output(data)
 
     def menu_content(self, url):
         """
@@ -94,7 +43,7 @@ class Menu(Settings, SpokeScraperCore):
         self._menu_right_side_text(data, script_data)
         self._menu_right_side_shop_button_text(data, url)
 
-        self.main_output_data(data)
+        self.home_output(data)
 
     @staticmethod
     def _menu_titles(data, target_text):
@@ -149,7 +98,7 @@ class Menu(Settings, SpokeScraperCore):
         data['Right menu interactive shopping button'] = content
 
 
-class Banners(Settings, SpokeScraperCore):
+class Banners(Settings, DataWriter):
     def __init__(self):
         super(Banners, self).__init__()
 
@@ -211,7 +160,7 @@ class Banners(Settings, SpokeScraperCore):
         data['Additional Content'] = additional
         data['Comments Content'] = comments
 
-        self.main_output_data(data)
+        self.home_output(data)
 
     @staticmethod
     def first_banner(content, first_banner):
@@ -291,7 +240,7 @@ class Banners(Settings, SpokeScraperCore):
             comments.append(name)
 
 
-class Footer(Settings, SpokeScraperCore):
+class Footer(Settings, DataWriter):
     def __init__(self):
         super(Footer, self).__init__()
 
@@ -327,16 +276,15 @@ class Footer(Settings, SpokeScraperCore):
 
         data['FOOTER'] = sub_data
 
-        self.main_output_data(data)
+        self.home_output(data)
 
 
 class BrandHomePage(Menu, Banners, Footer):
-
     def __init__(self):
         super(BrandHomePage, self).__init__()
-        self.scrape_content()
+        self.scrape_homepage_content()
 
-    def scrape_content(self):
+    def scrape_homepage_content(self):
         """
         Scrape whole content related to HomePage
         """
@@ -354,22 +302,17 @@ class BrandHomePage(Menu, Banners, Footer):
 
         # Over navbar
         [self.over_navbar_info(url) for url in urls]
-
-        # Menu
-        [self.menu_content(url) for url in urls]
-
+        # # Menu
+        # [self.menu_content(url) for url in urls]
         # Banners
-        [self.banners_content(url) for url in banners_urls]
-
-        # Footer
-        [self.footer_content(url) for url in urls]
-
+        # [self.banners_content(url) for url in banners_urls]
+        # # Footer
+        # [self.footer_content(url) for url in urls]
         # Help button
-        self.help_button_content(urls[0], 'en')  # ENGLISH url
-        self.help_button_content(urls[1], 'de')  # DEUTSCH url
-
-        # Newsletter Popup
-        [self.newsletter_popup(url) for url in example_urls]
+        # self.help_button_content(urls[0], 'en')  # ENGLISH url
+        # self.help_button_content(urls[1], 'de')  # DEUTSCH url
+        # # Newsletter Popup
+        # [self.newsletter_popup(url) for url in example_urls]
 
     def help_button_content(self, url, selenium_lang):
         # Get url by selenium also based on locale language
@@ -409,7 +352,7 @@ class BrandHomePage(Menu, Banners, Footer):
 
         data['HELP BUTTON'] = sub_data
 
-        self.main_output_data(data)
+        self.home_output(data)
 
     def newsletter_popup(self, url):
 
@@ -431,8 +374,4 @@ class BrandHomePage(Menu, Banners, Footer):
 
         data['Klarna POPUP'] = klarna_data
 
-        self.main_output_data(data)
-
-
-if __name__ == '__main__':
-    BrandHomePage()
+        self.home_output(data)
