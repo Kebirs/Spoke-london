@@ -56,16 +56,18 @@ class Settings(object):
         return browser
 
 
-class Menu(Settings):
+class Menu(Settings, SpokeScraperCore):
     def __init__(self):
         super(Menu, self).__init__()
 
-    def over_navbar_info(self, url, lang):
-        data = {}
+    def over_navbar_info(self, url):
+        sub_data = {}
+
         script_data = self.json_script_data(url)
         over_navbar_text = script_data['props']['initialState']['header']['menu']['items'][0]['flashBanner']['flashBannerItems']['items'][0]['bannerName']
-        data[lang + ' Brand Homepage - Over Navbar Info'] = over_navbar_text
-        return data
+        sub_data['Brand Homepage - Over Navbar Info'] = over_navbar_text
+
+        self.main_output_data(sub_data)
 
     def menu_content(self, eng_url, de_url):
         """
@@ -360,7 +362,7 @@ class Footer(Settings):
         return data
 
 
-class BrandHomePage(SpokeScraperCore, Menu, Banners, Footer):
+class BrandHomePage(Menu, Banners, Footer):
 
     def __init__(self):
         super(BrandHomePage, self).__init__()
@@ -377,27 +379,30 @@ class BrandHomePage(SpokeScraperCore, Menu, Banners, Footer):
         banners_url_de = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=de-DE&include=6'
 
         # Over navbar
-        self.main_output_data(self.over_navbar_info(eng_url, self.ENG))
-        self.main_output_data(self.over_navbar_info(de_url, self.DE))
+        # self.main_output_data(self.over_navbar_info(eng_url, self.ENG))
+        # self.main_output_data(self.over_navbar_info(de_url, self.DE))
+        self.over_navbar_info(eng_url)
+        self.over_navbar_info(de_url)
+
 
         # Menu
-        self.main_output_data(self.menu_content(eng_url, de_url))
-
-        # Banners
-        self.main_output_data(self.banners_content(banners_url_eng, banners_url_de))
-
-        # Footer
-        self.main_output_data(self.footer_content(eng_url, self.ENG))
-        self.main_output_data(self.footer_content(de_url, self.DE))
-
-        # Help button
-        self.main_output_data(self.help_button_content(eng_url, self.ENG, 'en'))
-        self.main_output_data(self.help_button_content(de_url, self.DE, 'de'))
-
-        # Newsletter Popup
-        eng_example_url = 'https://spoke-london.com/gb/pages/about'
-        de_example_url = 'https://spoke-london.com/de/pages/about'
-        self.main_output_data(self.newsletter_popup(eng_example_url, de_example_url))
+        # self.main_output_data(self.menu_content(eng_url, de_url))
+        #
+        # # Banners
+        # self.main_output_data(self.banners_content(banners_url_eng, banners_url_de))
+        #
+        # # Footer
+        # self.main_output_data(self.footer_content(eng_url, self.ENG))
+        # self.main_output_data(self.footer_content(de_url, self.DE))
+        #
+        # # Help button
+        # self.main_output_data(self.help_button_content(eng_url, self.ENG, 'en'))
+        # self.main_output_data(self.help_button_content(de_url, self.DE, 'de'))
+        #
+        # # Newsletter Popup
+        # eng_example_url = 'https://spoke-london.com/gb/pages/about'
+        # de_example_url = 'https://spoke-london.com/de/pages/about'
+        # self.main_output_data(self.newsletter_popup(eng_example_url, de_example_url))
 
     def help_button_content(self, url, lang, selenium_lang):
         # Get url by selenium also based on locale language
@@ -442,7 +447,6 @@ class BrandHomePage(SpokeScraperCore, Menu, Banners, Footer):
         responses = []
         data = {}
 
-        # TODO chuj sprawdz
         for lang in args:
             responses.append(self.get_request(lang))
 
