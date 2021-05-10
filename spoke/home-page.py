@@ -1,20 +1,11 @@
-import ast
 import time
-
-import lxml.html
-import pandas as pd
-import requests
-import json
 import cloudscraper
 import re
-from bs4 import BeautifulSoup as bs
 from lxml import html
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
-from webdriver_manager import driver
 from webdriver_manager.chrome import ChromeDriverManager as CM
 from selenium.webdriver.support import expected_conditions as EC
 from spoke.main import SpokeScraperCore
@@ -25,6 +16,7 @@ class Settings(object):
         super(Settings, self).__init__()
         self.ENG = 'ENG '
         self.DE = 'DE '
+        self.languages_list = [self.ENG, self.DE]
 
     @staticmethod
     def get_request(url):
@@ -35,6 +27,11 @@ class Settings(object):
         return r
 
     def json_script_data(self, url):
+        """
+        Evaluate data into json format
+        :param url:
+        :return data formatted into json:
+        """
         resp = self.get_request(url)
         script_data = html.fromstring(resp.text).xpath('//script[@id="__NEXT_DATA__"]/text()')
         true = 'true'
@@ -66,16 +63,20 @@ class Menu(Settings):
     def over_navbar_info(self, url, lang):
         data = {}
         script_data = self.json_script_data(url)
-        over_navbar_text = script_data['props']['initialState']['header']['menu'][
-            'items'][0]['flashBanner']['flashBannerItems'][
-            'items'][0]['bannerName']
+        over_navbar_text = script_data['props']['initialState']['header']['menu']['items'][0]['flashBanner']['flashBannerItems']['items'][0]['bannerName']
         data[lang + ' Brand Homepage - Over Navbar Info'] = over_navbar_text
         return data
 
     def menu_content(self, eng_url, de_url):
+        """
+        Scrape whole data related to MENU content; dropdown menu after hover included
+        :param eng_url:
+        :param de_url:
+        """
         eng_script_data = self.json_script_data(eng_url)
         de_script_data = self.json_script_data(de_url)
 
+        # Target text related to menu
         eng_header_text = eng_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
         de_header_text = de_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
 
@@ -93,8 +94,11 @@ class Menu(Settings):
         self._menu_new_in_card_submenu(data, self.ENG, eng_header_text)
         self._menu_new_in_card_submenu(data, self.DE, de_header_text)
 
-        self._menu_right_side(data, self.ENG, eng_script_data)
-        self._menu_right_side(data, self.DE, de_script_data)
+        self._menu_right_side_text(data, self.ENG, eng_script_data)
+        self._menu_right_side_text(data, self.DE, de_script_data)
+
+        self._menu_right_side_shop_button_text(data, eng_url, self.ENG)
+        self._menu_right_side_shop_button_text(data, de_url, self.DE)
 
         return data
 
@@ -104,19 +108,19 @@ class Menu(Settings):
 
     @staticmethod
     def _menu_titles_dropdown(data, lang, target_text):
-        data[lang + 'Main menu titles dropdown'] = [(j['title']) for i in target_text for j in
-                                                    i['secondaryNavigation']['items']]
+        data[lang + 'Main menu titles dropdown'] = [(j['title'])
+                                                        for i in target_text
+                                                        for j in i['secondaryNavigation']['items']]
 
     @staticmethod
     def _menu_titles_dropdown_additional(data, lang, target_text):
         data[lang + 'Main menu titles dropdown additional'] = [(k['title'], k['card']['description'],
                                                                 k['card']['byline'],
-                                                                k['card']['badge']['title'] if k['card'][
-                                                                                                   'badge'] != 'null' else None,
-                                                                k['card']['button']['text']) for i in
-                                                               target_text for j in
-                                                               i['secondaryNavigation']['items'] for k in
-                                                               j['tertiaryNavigation']['items']]
+                                                                k['card']['badge']['title'] if k['card']['badge'] != 'null' else None,
+                                                                k['card']['button']['text'])
+                                                                   for i in target_text
+                                                                   for j in i['secondaryNavigation']['items']
+                                                                   for k in j['tertiaryNavigation']['items']]
 
     @staticmethod
     def _menu_new_in_card_submenu(data, lang, target_text):
@@ -126,8 +130,29 @@ class Menu(Settings):
             i['submenuLayout']['grid']['items']]
 
     @staticmethod
-    def _menu_right_side(data, lang, target_text):
-        data[lang + 'Right menu content'] = (target_text['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'])
+    def _menu_right_side_text(data, lang, target_text):
+        data[lang + 'Right menu visible text'] = (target_text['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'])
+
+    def _menu_right_side_shop_button_text(self, data, url, lang):
+        s = self._selenium()
+        s.get(url)
+
+        # Shopping button
+        button_path = '//span[@class="styles_menuCart__26WiL"]'
+
+        # Required window size to scrape desktop content
+        s.set_window_size(1100, 818)
+
+        button = WebDriverWait(s, 10).until(EC.visibility_of_element_located((By.XPATH, button_path)))
+        button.click()
+
+        # Shopping content
+        content_path = '//div[@class="styles_cart__3oMRE styles_enterDone__2KGSy"]'
+        content = WebDriverWait(s, 10).until(EC.visibility_of_element_located((By.XPATH, content_path)))
+        content = content.text.strip()
+        content = content.replace('\n', ', ')
+
+        data[lang + 'Right menu interactive shopping button'] = content
 
 
 class Banners(Settings):
@@ -135,11 +160,14 @@ class Banners(Settings):
         super(Banners, self).__init__()
 
     def banners_content(self, eng_url, de_url):
+        # Authorization required for get request
         auth = {
             'Authorization': 'Bearer 56If-j-ANNWSZ9Zk_8lp9EChokF6LNtKJDHC8eHMfSs',
             'If-None-Match': 'W/"16729328500904452549"'
         }
+
         s = cloudscraper.create_scraper()
+
         # English response
         eng_r = s.get(eng_url, headers=auth)
         eng_r.encoding = 'UTF-8'
@@ -151,6 +179,8 @@ class Banners(Settings):
         de_content = de_r.json()
 
         data = {}
+
+        # Lists od data; both for eng and de content
         eng_first_banner, de_first_banner = [], []
         eng_benefits, de_benefits = [], []
         eng_mobile, de_mobile = [], []
@@ -158,6 +188,7 @@ class Banners(Settings):
         eng_additional, de_additional = [], []
         eng_comments, de_comments = [], []
 
+        # Main data root
         eng_all_contents = eng_content['includes']['Entry']
         de_all_contents = de_content['includes']['Entry']
 
@@ -215,7 +246,6 @@ class Banners(Settings):
 
     @staticmethod
     def first_banner(content, first_banner):
-        # TODO: button name
         try:
             typ = content['sys']['contentType']['sys']['id']
         except KeyError:
@@ -285,8 +315,7 @@ class Banners(Settings):
     @staticmethod
     def comments_content(content, content_name, comments):
         # Banner with comments
-        if re.compile(r'(Testimonial|Testimonials) Homepage (First|second|Third|Fourth) (item|Item|Item )').match(
-                str(content_name)):
+        if re.compile(r'(Testimonial|Testimonials) Homepage (First|second|Third|Fourth) (item|Item|Item )').match(str(content_name)):
             title = content['fields']['title']
             name = content['fields']['underTitle']
             comments.append(title)
@@ -302,23 +331,29 @@ class Footer(Settings):
         s.get(url)
         time.sleep(3)
         data = {}
+
         sub_data = []
-        sub_data.append(s.find_element_by_xpath(
-            '/html/body/div[1]/main/div/div[3]/footer/div[1]/div/div/div[1]/div/div/div').text.strip().replace('\n',
-                                                                                                               ', '))
+        sub_data.append(s.find_element_by_xpath('/html/body/div[1]/main/div/div[3]/footer/div[1]/div/div/div[1]/div/div/div').text.strip().replace('\n',', '))
         sub_data.append(s.find_element_by_xpath('//input[@id="email"]').get_attribute('placeholder'))
+        sub_data.append(s.find_element_by_xpath('//div[@class="styles_footerBaseContent__15eHp"]').text.strip().replace('\n',', '))
+        sub_data.append(s.find_element_by_xpath("//div[contains(@class, 'styles_footerWrap__26rQ6')]").text.strip().replace('\n', ', '))
 
-        sub_data.append(
-            s.find_element_by_xpath('//div[@class="styles_footerBaseContent__15eHp"]').text.strip().replace('\n',
-                                                                                                            ', '))
-        sub_data.append(
-            s.find_element_by_xpath("//div[contains(@class, 'styles_footerWrap__26rQ6')]").text.strip().replace(
-                '\n', ', '))
-
+        # Actions required to be able to scrape error info after not passing email AT ALL
         email = s.find_element_by_xpath('//input[@id="email"]')
         email.send_keys(Keys.END)
         email.click()
-        s.find_element_by_xpath('/html/body/div[1]/main/div/div[3]/div/div').click()
+        country_switcher = '/html/body/div[1]/main/div/div[3]/div/div/div/p/span'
+        country_switcher = s.find_element_by_xpath(country_switcher)
+
+        # Double click xd
+        for i in range(2):
+            country_switcher.click()
+
+        sub_data.append(s.find_element_by_xpath('//p[@class="form__error"]').text)
+
+        email.click()
+        email.send_keys('invalid_email')
+        s.find_element_by_xpath('//button[@role="submit"]').click()
         sub_data.append(s.find_element_by_xpath('//p[@class="form__error"]').text)
 
         data[lang + 'FOOTER'] = sub_data
@@ -332,56 +367,101 @@ class BrandHomePage(SpokeScraperCore, Menu, Banners, Footer):
         self.scrape_content()
 
     def scrape_content(self):
+        """
+        Scrape whole content related to HomePage
+        """
         # For both lang; eng and de side by side in columns
         eng_url = 'https://spoke-london.com/gb'
         de_url = 'https://spoke-london.com/de/'
         banners_url_eng = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=en-GB&include=6'
         banners_url_de = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=de-DE&include=6'
 
+        # Over navbar
         self.main_output_data(self.over_navbar_info(eng_url, self.ENG))
         self.main_output_data(self.over_navbar_info(de_url, self.DE))
 
+        # Menu
         self.main_output_data(self.menu_content(eng_url, de_url))
 
+        # Banners
         self.main_output_data(self.banners_content(banners_url_eng, banners_url_de))
 
+        # Footer
         self.main_output_data(self.footer_content(eng_url, self.ENG))
         self.main_output_data(self.footer_content(de_url, self.DE))
 
+        # Help button
         self.main_output_data(self.help_button_content(eng_url, self.ENG, 'en'))
         self.main_output_data(self.help_button_content(de_url, self.DE, 'de'))
 
+        # Newsletter Popup
+        eng_example_url = 'https://spoke-london.com/gb/pages/about'
+        de_example_url = 'https://spoke-london.com/de/pages/about'
+        self.main_output_data(self.newsletter_popup(eng_example_url, de_example_url))
+
     def help_button_content(self, url, lang, selenium_lang):
+        # Get url by selenium also based on locale language
         s = self._selenium_lang(selenium_lang)
         s.get(url)
         time.sleep(3)
         data = {}
         sub_data = []
+
+        # Find email and go to the bottom of page
         email = s.find_element_by_xpath('//input[@id="email"]')
         email.send_keys(Keys.END)
-        iframe = WebDriverWait(s, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//iframe[@id="launcher"]')))
+
+        # Switch to iframe which contains help_button
+        iframe = WebDriverWait(s, 10).until(EC.visibility_of_element_located((By.XPATH, '//iframe[@id="launcher"]')))
         s.switch_to.frame(iframe)
 
+        # Find help button and click
         help_button = s.find_element_by_xpath('//button[@aria-haspopup="true"]')
         sub_data.append(help_button.text)
         help_button.click()
         time.sleep(2)
 
+        # Back from first iframe to default content
         s.switch_to.default_content()
 
-        iframe2 = WebDriverWait(s, 10).until(
-            EC.visibility_of_element_located((By.XPATH, '//iframe[@id="webWidget"]')))
+        # Switch to iframe which contains help_button content after click
+        iframe2 = WebDriverWait(s, 10).until(EC.visibility_of_element_located((By.XPATH, '//iframe[@id="webWidget"]')))
         s.switch_to.frame(iframe2)
 
-        help_button_text = s.find_element_by_xpath('//div[@data-embed="helpCenterForm"]').text.strip().replace(
-            '\n', ', ')
+        # Find help_button text after click
+        help_button_text = s.find_element_by_xpath('//div[@data-embed="helpCenterForm"]').text.strip().replace('\n', ', ')
         help_placeholder = s.find_element_by_xpath('//input[@type="search"]').get_attribute('placeholder')
 
         sub_data.append(help_button_text)
         sub_data.append(help_placeholder)
 
         data[lang + 'HELP BUTTON'] = sub_data
+        return data
+
+    def newsletter_popup(self, *args):
+        responses = []
+        data = {}
+
+        # TODO chuj sprawdz
+        for lang in args:
+            responses.append(self.get_request(lang))
+
+        for lang, resp in zip(self.languages_list, responses):
+            # Newsletter popup text
+            newsletter_tree = html.fromstring(resp.text).xpath('//div[@data-lightbox="newsletter"]//text()')
+            newsletter_data = [x.strip() for x in newsletter_tree if x]
+            newsletter_data = list(filter(None, newsletter_data))
+
+            data[lang + 'Newsletter POPUP'] = newsletter_data
+
+        for lang, resp in zip(self.languages_list, responses):
+            # Klarna popup text
+            klarna_tree = html.fromstring(resp.text).xpath('//div[@data-lightbox="klarna"]//text()')
+            klarna_data = [x.strip() for x in klarna_tree if x]
+            klarna_data = list(filter(None, klarna_data))
+
+            data[lang + 'Klarna POPUP'] = klarna_data
+
         return data
 
 
