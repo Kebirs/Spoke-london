@@ -40,6 +40,7 @@ class Settings(object):
         script_data_json = eval(script_data[0])
         return script_data_json
 
+
     @staticmethod
     def _selenium():
         options = webdriver.ChromeOptions()
@@ -55,68 +56,59 @@ class Settings(object):
         browser = webdriver.Chrome(executable_path=CM().install(), options=options)
         return browser
 
+    def get_cdn_id(self, url):
+        script_data_json = self.json_script_data(url)
+        cdn = script_data_json['query']['contentfulId']
+        return str(cdn)
+
 
 class Menu(Settings, SpokeScraperCore):
     def __init__(self):
         super(Menu, self).__init__()
 
     def over_navbar_info(self, url):
-        sub_data = {}
+        data = {}
 
         script_data = self.json_script_data(url)
         over_navbar_text = script_data['props']['initialState']['header']['menu']['items'][0]['flashBanner']['flashBannerItems']['items'][0]['bannerName']
-        sub_data['Brand Homepage - Over Navbar Info'] = over_navbar_text
+        data['Brand Homepage - Over Navbar Info'] = over_navbar_text
 
-        self.main_output_data(sub_data)
+        self.main_output_data(data)
 
-    def menu_content(self, eng_url, de_url):
+    def menu_content(self, url):
         """
         Scrape whole data related to MENU content; dropdown menu after hover included
-        :param eng_url:
-        :param de_url:
+        :param url:
         """
-        eng_script_data = self.json_script_data(eng_url)
-        de_script_data = self.json_script_data(de_url)
+        script_data = self.json_script_data(url)
 
         # Target text related to menu
-        eng_header_text = eng_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
-        de_header_text = de_script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
+        header_text = script_data['props']['initialState']['header']['menu']['items'][0]['desktop']['primaryNavigation']['items']
 
         data = {}
 
-        self._menu_titles(data, self.ENG, eng_header_text)
-        self._menu_titles(data, self.DE, de_header_text)
+        self._menu_titles(data, header_text)
+        self._menu_titles_dropdown(data, header_text)
+        self._menu_titles_dropdown_additional(data, header_text)
+        self._menu_new_in_card_submenu(data, header_text)
+        self._menu_right_side_text(data, script_data)
+        self._menu_right_side_shop_button_text(data, url)
 
-        self._menu_titles_dropdown(data, self.ENG, eng_header_text)
-        self._menu_titles_dropdown(data, self.DE, de_header_text)
-
-        self._menu_titles_dropdown_additional(data, self.ENG, eng_header_text)
-        self._menu_titles_dropdown_additional(data, self.DE, de_header_text)
-
-        self._menu_new_in_card_submenu(data, self.ENG, eng_header_text)
-        self._menu_new_in_card_submenu(data, self.DE, de_header_text)
-
-        self._menu_right_side_text(data, self.ENG, eng_script_data)
-        self._menu_right_side_text(data, self.DE, de_script_data)
-
-        self._menu_right_side_shop_button_text(data, eng_url, self.ENG)
-        self._menu_right_side_shop_button_text(data, de_url, self.DE)
-
-        return data
+        self.main_output_data(data)
 
     @staticmethod
-    def _menu_titles(data, lang, target_text):
-        data[lang + 'Main menu titles'] = [(i['title']) for i in target_text]
+    def _menu_titles(data, target_text):
+        data['Main menu titles'] = [(i['title']) for i in target_text]
 
     @staticmethod
-    def _menu_titles_dropdown(data, lang, target_text):
-        data[lang + 'Main menu titles dropdown'] = [(j['title'])
+    def _menu_titles_dropdown(data, target_text):
+        data['Main menu titles dropdown'] = [(j['title'])
                                                         for i in target_text
                                                         for j in i['secondaryNavigation']['items']]
 
     @staticmethod
-    def _menu_titles_dropdown_additional(data, lang, target_text):
-        data[lang + 'Main menu titles dropdown additional'] = [(k['title'], k['card']['description'],
+    def _menu_titles_dropdown_additional(data, target_text):
+        data['Main menu titles dropdown additional'] = [(k['title'], k['card']['description'],
                                                                 k['card']['byline'],
                                                                 k['card']['badge']['title'] if k['card']['badge'] != 'null' else None,
                                                                 k['card']['button']['text'])
@@ -125,17 +117,17 @@ class Menu(Settings, SpokeScraperCore):
                                                                    for k in j['tertiaryNavigation']['items']]
 
     @staticmethod
-    def _menu_new_in_card_submenu(data, lang, target_text):
-        data[lang + 'Main menu NEW IN submenu'] = [
+    def _menu_new_in_card_submenu(data, target_text):
+        data['Main menu NEW IN submenu'] = [
             (j['title'], j['byline'], j['description'], j['badge']['title'] if j['badge'] != 'null' else None) for i in
             target_text if i['title'] == 'New In' or i['title'] == 'NEU' for j in
             i['submenuLayout']['grid']['items']]
 
     @staticmethod
-    def _menu_right_side_text(data, lang, target_text):
-        data[lang + 'Right menu visible text'] = (target_text['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'])
+    def _menu_right_side_text(data, target_text):
+        data['Right menu visible text'] = (target_text['props']['initialState']['header']['menu']['items'][0]['desktop']['secondaryNavigation']['items'][0]['title'])
 
-    def _menu_right_side_shop_button_text(self, data, url, lang):
+    def _menu_right_side_shop_button_text(self, data, url):
         s = self._selenium()
         s.get(url)
 
@@ -154,69 +146,55 @@ class Menu(Settings, SpokeScraperCore):
         content = content.text.strip()
         content = content.replace('\n', ', ')
 
-        data[lang + 'Right menu interactive shopping button'] = content
+        data['Right menu interactive shopping button'] = content
 
 
-class Banners(Settings):
+class Banners(Settings, SpokeScraperCore):
     def __init__(self):
         super(Banners, self).__init__()
 
-    def banners_content(self, eng_url, de_url):
+    def banners_content(self, url):
         # Authorization required for get request
         auth = {
             'Authorization': 'Bearer 56If-j-ANNWSZ9Zk_8lp9EChokF6LNtKJDHC8eHMfSs',
-            'If-None-Match': 'W/"16729328500904452549"'
+            # 'If-None-Match': 'W/"16729328500904452549"'
+            'If-None-Match': 'W/"14186816362649224049"'
         }
 
         s = cloudscraper.create_scraper()
 
-        # English response
-        eng_r = s.get(eng_url, headers=auth)
-        eng_r.encoding = 'UTF-8'
-        eng_content = eng_r.json()
-
-        # Deutsch response
-        de_r = s.get(de_url, headers=auth)
-        de_r.encoding = 'UTF-8'
-        de_content = de_r.json()
+        r = s.get(url, headers=auth)
+        r.encoding = 'UTF-8'
+        content = r.json()
 
         data = {}
 
         # Lists od data; both for eng and de content
-        eng_first_banner, de_first_banner = [], []
-        eng_benefits, de_benefits = [], []
-        eng_mobile, de_mobile = [], []
-        eng_clothes, de_clothes = [], []
-        eng_additional, de_additional = [], []
-        eng_comments, de_comments = [], []
+        first_banner = []
+        benefits = []
+        mobile = []
+        clothes = []
+        additional = []
+        comments = []
 
         # Main data root
-        eng_all_contents = eng_content['includes']['Entry']
-        de_all_contents = de_content['includes']['Entry']
+        all_contents = content['includes']['Entry']
 
-        for eng_content, de_content in zip(eng_all_contents, de_all_contents):
+        for content in all_contents:
             try:
                 try:
                     # Content names as name of banner field
-                    content_name = eng_content['fields']['contentName']
+                    content_name = content['fields']['contentName']
                 except KeyError:
                     content_name = None
 
                 # ENGLISH
-                self.first_banner(eng_content, eng_first_banner)
-                self.banner_benefits(eng_content, content_name, eng_benefits)
-                self.banner_mobile(eng_content, content_name, eng_mobile)
-                self.banner_clothes(eng_content, content_name, eng_clothes)
-                self.over_brands_text(eng_content, eng_additional)
-                self.comments_content(eng_content, content_name, eng_comments)
-
-                # DEUTSCH
-                self.first_banner(de_content, de_first_banner)
-                self.banner_benefits(de_content, content_name, de_benefits)
-                self.banner_mobile(de_content, content_name, de_mobile)
-                self.banner_clothes(de_content, content_name, de_clothes)
-                self.over_brands_text(de_content, de_additional)
-                self.comments_content(de_content, content_name, de_comments)
+                self.first_banner(content, first_banner)
+                self.banner_benefits(content, content_name, benefits)
+                self.banner_mobile(content, content_name, mobile)
+                self.banner_clothes(content, content_name, clothes)
+                self.over_brands_text(content, additional)
+                self.comments_content(content, content_name, comments)
 
                 # Banner with animate mobile phone button's
                 # if re.compile('.*FineTuneFit.*').match(str(content_button)):
@@ -226,25 +204,14 @@ class Banners(Settings):
             except KeyError:
                 continue
 
-        data[self.ENG + ' Home Banner Content'] = eng_first_banner
-        data[self.DE + ' Home Banner Content'] = de_first_banner
+        data['Home Banner Content'] = first_banner
+        data['Banner Benefits Content'] = benefits
+        data['Banner Mobile Animation Content'] = mobile
+        data['Banner Clothes Content'] = clothes
+        data['Additional Content'] = additional
+        data['Comments Content'] = comments
 
-        data[self.ENG + ' Banner Benefits Content'] = eng_benefits
-        data[self.DE + ' Banner Benefits Content'] = de_benefits
-
-        data[self.ENG + ' Banner Mobile Animation Content'] = eng_mobile
-        data[self.DE + ' Banner Mobile Animation Content'] = de_mobile
-
-        data[self.ENG + ' Banner Clothes Content'] = eng_clothes
-        data[self.DE + ' Banner Clothes Content'] = de_clothes
-
-        data[self.ENG + ' Additional Content'] = eng_additional
-        data[self.DE + ' Additional Content'] = de_additional
-
-        data[self.ENG + ' Comments Content'] = eng_comments
-        data[self.DE + ' Comments Content'] = de_comments
-
-        return data
+        self.main_output_data(data)
 
     @staticmethod
     def first_banner(content, first_banner):
@@ -324,11 +291,11 @@ class Banners(Settings):
             comments.append(name)
 
 
-class Footer(Settings):
+class Footer(Settings, SpokeScraperCore):
     def __init__(self):
         super(Footer, self).__init__()
 
-    def footer_content(self, url, lang):
+    def footer_content(self, url):
         s = self._selenium()
         s.get(url)
         time.sleep(3)
@@ -358,8 +325,9 @@ class Footer(Settings):
         s.find_element_by_xpath('//button[@role="submit"]').click()
         sub_data.append(s.find_element_by_xpath('//p[@class="form__error"]').text)
 
-        data[lang + 'FOOTER'] = sub_data
-        return data
+        data['FOOTER'] = sub_data
+
+        self.main_output_data(data)
 
 
 class BrandHomePage(Menu, Banners, Footer):
@@ -373,38 +341,37 @@ class BrandHomePage(Menu, Banners, Footer):
         Scrape whole content related to HomePage
         """
         # For both lang; eng and de side by side in columns
-        eng_url = 'https://spoke-london.com/gb'
-        de_url = 'https://spoke-london.com/de/'
-        banners_url_eng = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=en-GB&include=6'
-        banners_url_de = 'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=2HcDAp7cZd3Vpq5hEK4bMS&locale=de-DE&include=6'
+        urls = ['https://spoke-london.com/gb',
+                'https://spoke-london.com/de/']
+
+        cdn_id = self.get_cdn_id('https://spoke-london.com')
+
+        banners_urls = [f'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id={cdn_id}&locale=en-GB&include=6',
+                        f'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id={cdn_id}&locale=de-DE&include=6']
+
+        example_urls = ['https://spoke-london.com/gb/pages/about',
+                        'https://spoke-london.com/de/pages/about']
 
         # Over navbar
-        # self.main_output_data(self.over_navbar_info(eng_url, self.ENG))
-        # self.main_output_data(self.over_navbar_info(de_url, self.DE))
-        self.over_navbar_info(eng_url)
-        self.over_navbar_info(de_url)
-
+        [self.over_navbar_info(url) for url in urls]
 
         # Menu
-        # self.main_output_data(self.menu_content(eng_url, de_url))
-        #
-        # # Banners
-        # self.main_output_data(self.banners_content(banners_url_eng, banners_url_de))
-        #
-        # # Footer
-        # self.main_output_data(self.footer_content(eng_url, self.ENG))
-        # self.main_output_data(self.footer_content(de_url, self.DE))
-        #
-        # # Help button
-        # self.main_output_data(self.help_button_content(eng_url, self.ENG, 'en'))
-        # self.main_output_data(self.help_button_content(de_url, self.DE, 'de'))
-        #
-        # # Newsletter Popup
-        # eng_example_url = 'https://spoke-london.com/gb/pages/about'
-        # de_example_url = 'https://spoke-london.com/de/pages/about'
-        # self.main_output_data(self.newsletter_popup(eng_example_url, de_example_url))
+        [self.menu_content(url) for url in urls]
 
-    def help_button_content(self, url, lang, selenium_lang):
+        # Banners
+        [self.banners_content(url) for url in banners_urls]
+
+        # Footer
+        [self.footer_content(url) for url in urls]
+
+        # Help button
+        self.help_button_content(urls[0], 'en')  # ENGLISH url
+        self.help_button_content(urls[1], 'de')  # DEUTSCH url
+
+        # Newsletter Popup
+        [self.newsletter_popup(url) for url in example_urls]
+
+    def help_button_content(self, url, selenium_lang):
         # Get url by selenium also based on locale language
         s = self._selenium_lang(selenium_lang)
         s.get(url)
@@ -440,33 +407,31 @@ class BrandHomePage(Menu, Banners, Footer):
         sub_data.append(help_button_text)
         sub_data.append(help_placeholder)
 
-        data[lang + 'HELP BUTTON'] = sub_data
-        return data
+        data['HELP BUTTON'] = sub_data
 
-    def newsletter_popup(self, *args):
-        responses = []
+        self.main_output_data(data)
+
+    def newsletter_popup(self, url):
+
         data = {}
 
-        for lang in args:
-            responses.append(self.get_request(lang))
+        resp = self.get_request(url)
 
-        for lang, resp in zip(self.languages_list, responses):
-            # Newsletter popup text
-            newsletter_tree = html.fromstring(resp.text).xpath('//div[@data-lightbox="newsletter"]//text()')
-            newsletter_data = [x.strip() for x in newsletter_tree if x]
-            newsletter_data = list(filter(None, newsletter_data))
+        # Newsletter popup text
+        newsletter_tree = html.fromstring(resp.text).xpath('//div[@data-lightbox="newsletter"]//text()')
+        newsletter_data = [x.strip() for x in newsletter_tree if x]
+        newsletter_data = list(filter(None, newsletter_data))
 
-            data[lang + 'Newsletter POPUP'] = newsletter_data
+        data['Newsletter POPUP'] = newsletter_data
 
-        for lang, resp in zip(self.languages_list, responses):
-            # Klarna popup text
-            klarna_tree = html.fromstring(resp.text).xpath('//div[@data-lightbox="klarna"]//text()')
-            klarna_data = [x.strip() for x in klarna_tree if x]
-            klarna_data = list(filter(None, klarna_data))
+        # Klarna popup text
+        klarna_tree = html.fromstring(resp.text).xpath('//div[@data-lightbox="klarna"]//text()')
+        klarna_data = [x.strip() for x in klarna_tree if x]
+        klarna_data = list(filter(None, klarna_data))
 
-            data[lang + 'Klarna POPUP'] = klarna_data
+        data['Klarna POPUP'] = klarna_data
 
-        return data
+        self.main_output_data(data)
 
 
 if __name__ == '__main__':
