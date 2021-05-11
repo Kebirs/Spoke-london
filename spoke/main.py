@@ -5,39 +5,9 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager as CM
 
 
-homepage = []
-about = []
-careers = []
-faq_home = []
-return_policy = []
-size_charts = []
-
-
-class DataWriter(object):
+class ListsInit(object):
     def __init__(self):
-        super(DataWriter, self).__init__()
-
-    @staticmethod
-    def main_output():
-        # Dataframes init and cleaning
-        homepage_df = pd.DataFrame(homepage).apply(lambda x: pd.Series(x.dropna().values))
-        about_df = pd.DataFrame(about).apply(lambda x: pd.Series(x.dropna().values))
-        careers_df = pd.DataFrame(careers).apply(lambda x: pd.Series(x.dropna().values))
-        faq_home_df = pd.DataFrame(faq_home).apply(lambda x: pd.Series(x.dropna().values))
-        return_policy_df = pd.DataFrame(return_policy).apply(lambda x: pd.Series(x.dropna().values))
-        size_charts_df = pd.DataFrame(size_charts).apply(lambda x: pd.Series(x.dropna().values))
-
-        writer = pd.ExcelWriter('spoke-london.xlsx')
-
-        # Dataframes into xlsx sheets
-        about_df.to_excel(writer, sheet_name='About.xlsx', index=False)
-        homepage_df.to_excel(writer, sheet_name='Homepage.xlsx', index=False)
-        careers_df.to_excel(writer, sheet_name='Careers.xlsx', index=False)
-        faq_home_df.to_excel(writer, sheet_name='FAQ.xlsx', index=False)
-        return_policy_df.to_excel(writer, sheet_name='Return Policy.xlsx', index=False)
-        size_charts_df.to_excel(writer, sheet_name='Size Charts.xlsx', index=False)
-
-        writer.save()
+        super(ListsInit, self).__init__()
 
     @staticmethod
     def home_output(data):
@@ -62,6 +32,45 @@ class DataWriter(object):
     @staticmethod
     def size_charts_output(data):
         size_charts.append(data)
+
+
+homepage = []
+about = []
+careers = []
+faq_home = []
+return_policy = []
+size_charts = []
+
+
+class DataWriter(ListsInit):
+    def __init__(self):
+        super(DataWriter, self).__init__()
+
+    def main_output(self):
+        # Dataframes init and cleaning
+        homepage_df = self.clean_df(homepage)
+        about_df = self.clean_df(about)
+        careers_df = self.clean_df(careers)
+        faq_home_df = self.clean_df(faq_home)
+        return_policy_df = self.clean_df(return_policy)
+        size_charts_df = self.clean_df(size_charts)
+
+        writer = pd.ExcelWriter('spoke-london.xlsx')
+
+        # Dataframes into xlsx sheets
+        about_df.to_excel(writer, sheet_name='About.xlsx', index=False)
+        homepage_df.to_excel(writer, sheet_name='Homepage.xlsx', index=False)
+        careers_df.to_excel(writer, sheet_name='Careers.xlsx', index=False)
+        faq_home_df.to_excel(writer, sheet_name='FAQ.xlsx', index=False)
+        return_policy_df.to_excel(writer, sheet_name='Return Policy.xlsx', index=False)
+        size_charts_df.to_excel(writer, sheet_name='Size Charts.xlsx', index=False)
+
+        writer.save()
+
+    @staticmethod
+    def clean_df(list_of_dicts):
+        df = pd.DataFrame(list_of_dicts).apply(lambda x: pd.Series(x.dropna().values))
+        return df
 
 
 class Settings(object):
