@@ -7,6 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager as CM
 
 homepage = []
 about = []
+careers = []
 
 
 class DataWriter(object):
@@ -18,12 +19,14 @@ class DataWriter(object):
         # Dataframes init and cleaning
         homepage_df = pd.DataFrame(homepage).apply(lambda x: pd.Series(x.dropna().values))
         about_df = pd.DataFrame(about).apply(lambda x: pd.Series(x.dropna().values))
+        careers_df = pd.DataFrame(careers).apply(lambda x: pd.Series(x.dropna().values))
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
         # Dataframes into xlsx sheets
         about_df.to_excel(writer, sheet_name='About.xlsx', index=False)
         homepage_df.to_excel(writer, sheet_name='Homepage.xlsx', index=False)
+        careers_df.to_excel(writer, sheet_name='Careers.xlsx', index=False)
 
         writer.save()
 
@@ -34,6 +37,10 @@ class DataWriter(object):
     @staticmethod
     def about_output(data):
         about.append(data)
+
+    @staticmethod
+    def careers_output(data):
+        careers.append(data)
 
 
 class Settings(object):
