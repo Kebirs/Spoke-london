@@ -14,6 +14,10 @@ class FAQPage(Settings, DataWriter):
         self.scrape_home_content()
 
     def scrape_home_content(self):
+        """
+        Sign in interactive popup not included cause
+        it comes from zendesk.com
+        """
         urls = ['https://spokelondon.zendesk.com/hc/en-us',
                 'https://spokelondon.zendesk.com/hc/de']
 
