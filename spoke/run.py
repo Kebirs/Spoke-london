@@ -23,8 +23,9 @@ class SpokeScraperCore(DataWriter):
         AboutPage(), print('AboutPage done')
         CareersPage(), print('CareersPage done')
         FAQPage(), print('FAQPage done')
-        ReturnPolicyPage()
-        SizeChartsPage()
+        ReturnPolicyPage(), print('ReturnPolicyPage done')
+        SizeChartsPage(), print('SizeChartsPage done')
+
 
 if __name__ == '__main__':
     SpokeScraperCore()

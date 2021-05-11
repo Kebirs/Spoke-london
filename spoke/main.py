@@ -9,7 +9,6 @@ homepage = []
 about = []
 careers = []
 faq_home = []
-faq_category = []
 return_policy = []
 size_charts = []
 
@@ -24,7 +23,6 @@ class DataWriter(object):
         about_df = pd.DataFrame(about).apply(lambda x: pd.Series(x.dropna().values))
         careers_df = pd.DataFrame(careers).apply(lambda x: pd.Series(x.dropna().values))
         faq_home_df = pd.DataFrame(faq_home).apply(lambda x: pd.Series(x.dropna().values))
-        faq_category_df = pd.DataFrame(faq_category).apply(lambda x: pd.Series(x.dropna().values))
         return_policy_df = pd.DataFrame(return_policy).apply(lambda x: pd.Series(x.dropna().values))
         size_charts_df = pd.DataFrame(size_charts).apply(lambda x: pd.Series(x.dropna().values))
 
@@ -34,8 +32,7 @@ class DataWriter(object):
         about_df.to_excel(writer, sheet_name='About.xlsx', index=False)
         homepage_df.to_excel(writer, sheet_name='Homepage.xlsx', index=False)
         careers_df.to_excel(writer, sheet_name='Careers.xlsx', index=False)
-        faq_home_df.to_excel(writer, sheet_name='FAQ Homepage.xlsx', index=False)
-        faq_category_df.to_excel(writer, sheet_name='FAQ Category.xlsx', index=False)
+        faq_home_df.to_excel(writer, sheet_name='FAQ.xlsx', index=False)
         return_policy_df.to_excel(writer, sheet_name='Return Policy.xlsx', index=False)
         size_charts_df.to_excel(writer, sheet_name='Size Charts.xlsx', index=False)
 
