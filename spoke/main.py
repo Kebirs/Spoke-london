@@ -19,7 +19,7 @@ class DataWriter(object):
         homepage_df = pd.DataFrame(homepage).apply(lambda x: pd.Series(x.dropna().values))
         about_df = pd.DataFrame(about).apply(lambda x: pd.Series(x.dropna().values))
 
-        writer = pd.ExcelWriter('spoke-london-test.xlsx')
+        writer = pd.ExcelWriter('spoke-london.xlsx')
 
         # Dataframes into xlsx sheets
         about_df.to_excel(writer, sheet_name='About.xlsx', index=False)
@@ -64,6 +64,12 @@ class Settings(object):
         null = 'null'
         script_data_json = eval(script_data[0])
         return script_data_json
+
+    @staticmethod
+    def clean_data(data):
+        clean = [x.strip().replace('\n', '').replace('  ', '') for x in data]
+        clean = list(filter(None, clean))
+        return clean
 
     @staticmethod
     def _selenium():
