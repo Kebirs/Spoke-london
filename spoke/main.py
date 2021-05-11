@@ -12,6 +12,7 @@ faq_home = []
 return_policy = []
 size_charts = []
 
+
 class DataWriter(object):
     def __init__(self):
         super(DataWriter, self).__init__()
@@ -55,10 +56,6 @@ class DataWriter(object):
         faq_home.append(data)
 
     @staticmethod
-    def faq_category_output(data):
-        faq_category.append(data)
-
-    @staticmethod
     def return_policy_output(data):
         return_policy.append(data)
 
@@ -100,6 +97,7 @@ class Settings(object):
     def clean_data(data):
         clean = [x.strip().replace('\n', '').replace('  ', '') for x in data]
         clean = list(filter(None, clean))
+        clean = ', '.join(clean)
         return clean
 
     @staticmethod

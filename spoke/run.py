@@ -18,12 +18,12 @@ class SpokeScraperCore(DataWriter):
     def scraper_run():
         """
         Run all sub_classes
-        """
-        BrandHomePage(), print('BrandHomePage done')
-        AboutPage(), print('AboutPage done')
-        CareersPage(), print('CareersPage done')
-        FAQPage(), print('FAQPage done')
-        ReturnPolicyPage(), print('ReturnPolicyPage done')
+        # """
+        # BrandHomePage(), print('BrandHomePage done')
+        # AboutPage(), print('AboutPage done')
+        # CareersPage(), print('CareersPage done')
+        # FAQPage(), print('FAQPage done')
+        # ReturnPolicyPage(), print('ReturnPolicyPage done')
         SizeChartsPage(), print('SizeChartsPage done')
 
 
