@@ -8,7 +8,10 @@ from webdriver_manager.chrome import ChromeDriverManager as CM
 homepage = []
 about = []
 careers = []
-
+faq_home = []
+faq_category = []
+return_policy = []
+size_charts = []
 
 class DataWriter(object):
     def __init__(self):
@@ -20,6 +23,10 @@ class DataWriter(object):
         homepage_df = pd.DataFrame(homepage).apply(lambda x: pd.Series(x.dropna().values))
         about_df = pd.DataFrame(about).apply(lambda x: pd.Series(x.dropna().values))
         careers_df = pd.DataFrame(careers).apply(lambda x: pd.Series(x.dropna().values))
+        faq_home_df = pd.DataFrame(faq_home).apply(lambda x: pd.Series(x.dropna().values))
+        faq_category_df = pd.DataFrame(faq_category).apply(lambda x: pd.Series(x.dropna().values))
+        return_policy_df = pd.DataFrame(return_policy).apply(lambda x: pd.Series(x.dropna().values))
+        size_charts_df = pd.DataFrame(size_charts).apply(lambda x: pd.Series(x.dropna().values))
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
@@ -27,6 +34,10 @@ class DataWriter(object):
         about_df.to_excel(writer, sheet_name='About.xlsx', index=False)
         homepage_df.to_excel(writer, sheet_name='Homepage.xlsx', index=False)
         careers_df.to_excel(writer, sheet_name='Careers.xlsx', index=False)
+        faq_home_df.to_excel(writer, sheet_name='FAQ Homepage.xlsx', index=False)
+        faq_category_df.to_excel(writer, sheet_name='FAQ Category.xlsx', index=False)
+        return_policy_df.to_excel(writer, sheet_name='Return Policy.xlsx', index=False)
+        size_charts_df.to_excel(writer, sheet_name='Size Charts.xlsx', index=False)
 
         writer.save()
 
@@ -41,6 +52,22 @@ class DataWriter(object):
     @staticmethod
     def careers_output(data):
         careers.append(data)
+
+    @staticmethod
+    def faq_home_output(data):
+        faq_home.append(data)
+
+    @staticmethod
+    def faq_category_output(data):
+        faq_category.append(data)
+
+    @staticmethod
+    def return_policy_output(data):
+        return_policy.append(data)
+
+    @staticmethod
+    def size_charts_output(data):
+        size_charts.append(data)
 
 
 class Settings(object):
@@ -97,3 +124,19 @@ class Settings(object):
         script_data_json = self.json_script_data(url)
         cdn = script_data_json['query']['contentfulId']
         return str(cdn)
+
+    @staticmethod
+    def get_banners(url):
+        # Authorization required for get request
+        auth = {
+            'Authorization': 'Bearer 56If-j-ANNWSZ9Zk_8lp9EChokF6LNtKJDHC8eHMfSs',
+            # 'If-None-Match': 'W/"16729328500904452549"'
+            'If-None-Match': 'W/"14186816362649224049"'
+        }
+
+        s = cloudscraper.create_scraper()
+
+        r = s.get(url, headers=auth)
+        r.encoding = 'UTF-8'
+        content = r.json()
+        return content
