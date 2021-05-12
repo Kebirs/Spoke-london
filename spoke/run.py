@@ -8,6 +8,7 @@ from spoke.size_charts import SizeChartsPage
 from spoke.contact_us import ContactUsPage
 from spoke.notfound404 import NotFoundPage
 from spoke.submit_request import SubmitRequestPage
+from spoke.privacy import PrivacyPolicyPage
 from spoke.main import DataWriter
 
 
@@ -21,7 +22,7 @@ class SpokeScraperCore(DataWriter):
     def scraper_run():
         """
         Run all sub_classes
-        # """
+        """
         # BrandHomePage(), print('BrandHomePage done')
         # AboutPage(), print('AboutPage done')
         # CareersPage(), print('CareersPage done')
@@ -30,7 +31,8 @@ class SpokeScraperCore(DataWriter):
         # SizeChartsPage(), print('SizeChartsPage done')
         # ContactUsPage(), print('ContactUsPage done')
         # NotFoundPage(), print('NotFoundPage done')
-        SubmitRequestPage(), print('SubmitRequestPage done')
+        # SubmitRequestPage(), print('SubmitRequestPage done')
+        PrivacyPolicyPage(), print('PrivacyPolicyPage done')
 
 
 if __name__ == '__main__':

@@ -45,6 +45,10 @@ class ListsInit(object):
     def submit_request_output(data):
         submit_request.append(data)
 
+    @staticmethod
+    def privacy_output(data):
+        privacy.append(data)
+
 
 homepage = []
 about = []
@@ -55,6 +59,7 @@ size_charts = []
 contact_us = []
 not_found = []
 submit_request = []
+privacy = []
 
 
 class DataWriter(ListsInit):
@@ -72,6 +77,7 @@ class DataWriter(ListsInit):
         contact_us_df = self.clean_df(contact_us)
         not_found_df = self.clean_df(not_found)
         submit_request_df = self.clean_df(submit_request)
+        privacy_df = self.clean_df(privacy)
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
@@ -85,6 +91,7 @@ class DataWriter(ListsInit):
         contact_us_df.to_excel(writer, sheet_name='Contact Us.xlsx', index=False)
         not_found_df.to_excel(writer, sheet_name='Page Not Found (404).xlsx', index=False)
         submit_request_df.to_excel(writer, sheet_name='Submit Request.xlsx', index=False)
+        privacy_df.to_excel(writer, sheet_name='Privacy Policy.xlsx', index=False)
 
         writer.save()
 
@@ -134,6 +141,7 @@ class Settings(object):
     def _selenium():
         options = webdriver.ChromeOptions()
         options.add_argument("--headless")
+        options.add_argument("window-size=1400,600")
         browser = webdriver.Chrome(executable_path=CM().install(), options=options)
         return browser
 
