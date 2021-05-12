@@ -49,6 +49,10 @@ class ListsInit(object):
     def privacy_output(data):
         privacy.append(data)
 
+    @staticmethod
+    def refer_friend_request_output(data):
+        refer_friend.append(data)
+
 
 homepage = []
 about = []
@@ -60,6 +64,7 @@ contact_us = []
 not_found = []
 submit_request = []
 privacy = []
+refer_friend = []
 
 
 class DataWriter(ListsInit):
@@ -78,6 +83,7 @@ class DataWriter(ListsInit):
         not_found_df = self.clean_df(not_found)
         submit_request_df = self.clean_df(submit_request)
         privacy_df = self.clean_df(privacy)
+        refer_friend_df = self.clean_df(refer_friend)
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
@@ -92,6 +98,7 @@ class DataWriter(ListsInit):
         not_found_df.to_excel(writer, sheet_name='Page Not Found (404).xlsx', index=False)
         submit_request_df.to_excel(writer, sheet_name='Submit Request.xlsx', index=False)
         privacy_df.to_excel(writer, sheet_name='Privacy Policy.xlsx', index=False)
+        refer_friend_df.to_excel(writer, sheet_name='Refer A Friend.xlsx', index=False)
 
         writer.save()
 
