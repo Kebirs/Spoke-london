@@ -5,6 +5,7 @@ from spoke.careers import CareersPage
 from spoke.faq import FAQPage
 from spoke.return_policy import ReturnPolicyPage
 from spoke.size_charts import SizeChartsPage
+from spoke.contact_us import ContactUsPage
 from spoke.main import DataWriter
 
 
@@ -24,7 +25,8 @@ class SpokeScraperCore(DataWriter):
         # CareersPage(), print('CareersPage done')
         # FAQPage(), print('FAQPage done')
         # ReturnPolicyPage(), print('ReturnPolicyPage done')
-        SizeChartsPage(), print('SizeChartsPage done')
+        # SizeChartsPage(), print('SizeChartsPage done')
+        ContactUsPage(), print('ContactUsPage done')
 
 
 if __name__ == '__main__':

@@ -33,6 +33,10 @@ class ListsInit(object):
     def size_charts_output(data):
         size_charts.append(data)
 
+    @staticmethod
+    def contact_us_output(data):
+        contact_us.append(data)
+
 
 homepage = []
 about = []
@@ -40,6 +44,7 @@ careers = []
 faq_home = []
 return_policy = []
 size_charts = []
+contact_us = []
 
 
 class DataWriter(ListsInit):
@@ -54,6 +59,7 @@ class DataWriter(ListsInit):
         faq_home_df = self.clean_df(faq_home)
         return_policy_df = self.clean_df(return_policy)
         size_charts_df = self.clean_df(size_charts)
+        contact_us_df = self.clean_df(contact_us)
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
@@ -64,6 +70,7 @@ class DataWriter(ListsInit):
         faq_home_df.to_excel(writer, sheet_name='FAQ.xlsx', index=False)
         return_policy_df.to_excel(writer, sheet_name='Return Policy.xlsx', index=False)
         size_charts_df.to_excel(writer, sheet_name='Size Charts.xlsx', index=False)
+        contact_us_df.to_excel(writer, sheet_name='Contact Us.xlsx', index=False)
 
         writer.save()
 
