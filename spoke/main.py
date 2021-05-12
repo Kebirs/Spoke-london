@@ -37,6 +37,14 @@ class ListsInit(object):
     def contact_us_output(data):
         contact_us.append(data)
 
+    @staticmethod
+    def not_found_output(data):
+        not_found.append(data)
+
+    @staticmethod
+    def submit_request_output(data):
+        submit_request.append(data)
+
 
 homepage = []
 about = []
@@ -45,6 +53,8 @@ faq_home = []
 return_policy = []
 size_charts = []
 contact_us = []
+not_found = []
+submit_request = []
 
 
 class DataWriter(ListsInit):
@@ -60,6 +70,8 @@ class DataWriter(ListsInit):
         return_policy_df = self.clean_df(return_policy)
         size_charts_df = self.clean_df(size_charts)
         contact_us_df = self.clean_df(contact_us)
+        not_found_df = self.clean_df(not_found)
+        submit_request_df = self.clean_df(submit_request)
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
@@ -71,6 +83,8 @@ class DataWriter(ListsInit):
         return_policy_df.to_excel(writer, sheet_name='Return Policy.xlsx', index=False)
         size_charts_df.to_excel(writer, sheet_name='Size Charts.xlsx', index=False)
         contact_us_df.to_excel(writer, sheet_name='Contact Us.xlsx', index=False)
+        not_found_df.to_excel(writer, sheet_name='Page Not Found (404).xlsx', index=False)
+        submit_request_df.to_excel(writer, sheet_name='Submit Request.xlsx', index=False)
 
         writer.save()
 

@@ -6,6 +6,8 @@ from spoke.faq import FAQPage
 from spoke.return_policy import ReturnPolicyPage
 from spoke.size_charts import SizeChartsPage
 from spoke.contact_us import ContactUsPage
+from spoke.notfound404 import NotFoundPage
+from spoke.submit_request import SubmitRequestPage
 from spoke.main import DataWriter
 
 
@@ -26,7 +28,9 @@ class SpokeScraperCore(DataWriter):
         # FAQPage(), print('FAQPage done')
         # ReturnPolicyPage(), print('ReturnPolicyPage done')
         # SizeChartsPage(), print('SizeChartsPage done')
-        ContactUsPage(), print('ContactUsPage done')
+        # ContactUsPage(), print('ContactUsPage done')
+        # NotFoundPage(), print('NotFoundPage done')
+        SubmitRequestPage(), print('SubmitRequestPage done')
 
 
 if __name__ == '__main__':
