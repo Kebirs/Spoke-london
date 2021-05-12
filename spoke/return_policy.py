@@ -46,6 +46,9 @@ class ReturnPolicyPage(Settings, DataWriter):
                         sub_data.append(text)
                     except KeyError:
                         pass
+
+        sub_data = self.clean_data(sub_data)
+
         data = {'Return Policy Content': sub_data}
 
         self.return_policy_output(data)
