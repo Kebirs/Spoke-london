@@ -4,6 +4,7 @@ from lxml import html
 from bs4 import BeautifulSoup as bs
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 
 from spoke.main import Settings, DataWriter
@@ -53,17 +54,18 @@ class HowToMeasureDynamic(Settings, DataWriter):
         s.get(url.url)
         data = {}
         sub_data = []
+        time.sleep(3)
 
-        time.sleep(5)
-        cookies = '//div[@class="styles_gdprContent__QxL-q grid"]//button/span'
-        cookies = WebDriverWait(s, 10).until(EC.element_to_be_clickable((By.XPATH, cookies)))
-        cookies.click()
-        # s.execute_script("arguments[0].click();", cookies)
+        temp_position = '//div[@class="styles_oldFashioned__item__content__2pa6F"]'
+        temp_position = s.find_element_by_xpath(temp_position)
+        # Alternative scroll into view
+        # temp_position = temp_position.location_once_scrolled_into_view
 
-        time.sleep(2)
+        s.execute_script("arguments[0].scrollIntoView();", temp_position)
+
         button = '//div[@class="styles_oldFashioned__item__button__1zaHn"]/button'
         button = WebDriverWait(s, 10).until(EC.visibility_of_element_located((By.XPATH, button)))
-        # button = s.find_element_by_xpath(button)
+
         button.click()
         time.sleep(1)
 
