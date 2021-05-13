@@ -5,9 +5,9 @@ from lxml import html
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
-from selenium.webdriver.support import expected_conditions as EC
 from spoke.main import DataWriter, Settings
 
 
@@ -103,18 +103,7 @@ class Banners(Settings, DataWriter):
         super(Banners, self).__init__()
 
     def banners_content(self, url):
-        # Authorization required for get request
-        auth = {
-            'Authorization': 'Bearer 56If-j-ANNWSZ9Zk_8lp9EChokF6LNtKJDHC8eHMfSs',
-            # 'If-None-Match': 'W/"16729328500904452549"'
-            'If-None-Match': 'W/"14186816362649224049"'
-        }
-
-        s = cloudscraper.create_scraper()
-
-        r = s.get(url, headers=auth)
-        r.encoding = 'UTF-8'
-        content = r.json()
+        content = self.get_banners(url)
 
         data = {}
 
@@ -302,17 +291,17 @@ class BrandHomePage(Menu, Banners, Footer):
 
         # Over navbar
         [self.over_navbar_info(url) for url in urls]
-        # # Menu
-        # [self.menu_content(url) for url in urls]
+        # Menu
+        [self.menu_content(url) for url in urls]
         # Banners
-        # [self.banners_content(url) for url in banners_urls]
-        # # Footer
-        # [self.footer_content(url) for url in urls]
+        [self.banners_content(url) for url in banners_urls]
+        # Footer
+        [self.footer_content(url) for url in urls]
         # Help button
-        # self.help_button_content(urls[0], 'en')  # ENGLISH url
-        # self.help_button_content(urls[1], 'de')  # DEUTSCH url
-        # # Newsletter Popup
-        # [self.newsletter_popup(url) for url in example_urls]
+        self.help_button_content(urls[0], 'en')  # ENGLISH url
+        self.help_button_content(urls[1], 'de')  # DEUTSCH url
+        # Newsletter Popup
+        [self.newsletter_popup(url) for url in example_urls]
 
     def help_button_content(self, url, selenium_lang):
         # Get url by selenium also based on locale language
