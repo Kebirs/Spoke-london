@@ -57,6 +57,8 @@ class AboutPage(SecondMenu):
 
         data['Under first banner blueprint description'] = lines
 
+        self.about_output(data)
+
     def benefits_banners(self, url):
         data = {}
 
