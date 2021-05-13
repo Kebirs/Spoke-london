@@ -11,6 +11,7 @@ from spoke.submit_request import SubmitRequestPage
 from spoke.privacy import PrivacyPolicyPage
 from spoke.refer_a_friend import ReferFriendPage
 from spoke.newsletter import NewsletterPage
+from spoke.impressum_de import ImpressumPage
 from spoke.main import DataWriter
 
 
@@ -36,8 +37,8 @@ class SpokeScraperCore(DataWriter):
         # SubmitRequestPage(), print('SubmitRequestPage done')
         # PrivacyPolicyPage(), print('PrivacyPolicyPage done')
         # ReferFriendPage(), print('ReferFriendPage done')
-        NewsletterPage(), print('NewsletterPage done')
-
+        # NewsletterPage(), print('NewsletterPage done')
+        ImpressumPage(), print('ImpressumPage done')
 
 if __name__ == '__main__':
     SpokeScraperCore()
