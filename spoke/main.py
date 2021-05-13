@@ -53,6 +53,10 @@ class ListsInit(object):
     def refer_friend_request_output(data):
         refer_friend.append(data)
 
+    @staticmethod
+    def newsletter_request_output(data):
+        newsletter.append(data)
+
 
 homepage = []
 about = []
@@ -65,6 +69,7 @@ not_found = []
 submit_request = []
 privacy = []
 refer_friend = []
+newsletter = []
 
 
 class DataWriter(ListsInit):
@@ -84,6 +89,7 @@ class DataWriter(ListsInit):
         submit_request_df = self.clean_df(submit_request)
         privacy_df = self.clean_df(privacy)
         refer_friend_df = self.clean_df(refer_friend)
+        newsletter_df = self.clean_df(newsletter)
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
@@ -99,6 +105,7 @@ class DataWriter(ListsInit):
         submit_request_df.to_excel(writer, sheet_name='Submit Request.xlsx', index=False)
         privacy_df.to_excel(writer, sheet_name='Privacy Policy.xlsx', index=False)
         refer_friend_df.to_excel(writer, sheet_name='Refer A Friend.xlsx', index=False)
+        newsletter_df.to_excel(writer, sheet_name='Newsletter.xlsx', index=False)
 
         writer.save()
 
@@ -147,8 +154,8 @@ class Settings(object):
     @staticmethod
     def _selenium():
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
-        options.add_argument("window-size=1400,600")
+        # options.add_argument("--headless")
+        # options.add_argument("window-size=1400,600")
         browser = webdriver.Chrome(executable_path=CM().install(), options=options)
         return browser
 

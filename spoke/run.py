@@ -10,6 +10,7 @@ from spoke.notfound404 import NotFoundPage
 from spoke.submit_request import SubmitRequestPage
 from spoke.privacy import PrivacyPolicyPage
 from spoke.refer_a_friend import ReferFriendPage
+from spoke.newsletter import NewsletterPage
 from spoke.main import DataWriter
 
 
@@ -34,7 +35,9 @@ class SpokeScraperCore(DataWriter):
         # NotFoundPage(), print('NotFoundPage done')
         # SubmitRequestPage(), print('SubmitRequestPage done')
         # PrivacyPolicyPage(), print('PrivacyPolicyPage done')
-        ReferFriendPage(), print('ReferFriendPage done')
+        # ReferFriendPage(), print('ReferFriendPage done')
+        NewsletterPage(), print('NewsletterPage done')
+
 
 if __name__ == '__main__':
     SpokeScraperCore()
