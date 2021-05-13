@@ -14,6 +14,7 @@ from spoke.newsletter import NewsletterPage
 from spoke.impressum_de import ImpressumPage
 from spoke.terms_and_conditions import TermsConditionsPage
 from spoke.cookie_policy import CookiePolicyPage
+from spoke.fit_finder import FitFinderPage
 from spoke.main import DataWriter
 
 
@@ -43,7 +44,7 @@ class SpokeScraperCore(DataWriter):
         # ImpressumPage(), print('ImpressumPage done')
         # TermsConditionsPage(), print('TermsConditionsPage done')
         # CookiePolicyPage(), print('CookiePolicyPage done')
-
+        FitFinderPage(), print('FitFinderPage done')
 
 if __name__ == '__main__':
     SpokeScraperCore()

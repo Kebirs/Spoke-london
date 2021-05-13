@@ -69,6 +69,10 @@ class ListsInit(object):
     def cookie_policy_request_output(data):
         cookie_policy.append(data)
 
+    @staticmethod
+    def fit_finder_request_output(data):
+        fit_finder.append(data)
+
 
 homepage = []
 about = []
@@ -85,6 +89,7 @@ newsletter = []
 impressum = []
 terms_conditions = []
 cookie_policy = []
+fit_finder = []
 
 
 class DataWriter(ListsInit):
@@ -108,6 +113,7 @@ class DataWriter(ListsInit):
         impressum_df = self.clean_df(impressum)
         terms_conditions_df = self.clean_df(terms_conditions)
         cookie_policy_df = self.clean_df(cookie_policy)
+        fit_finder_df = self.clean_df(fit_finder)
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
@@ -127,6 +133,7 @@ class DataWriter(ListsInit):
         impressum_df.to_excel(writer, sheet_name='Impressum.xlsx', index=False)
         terms_conditions_df.to_excel(writer, sheet_name='Terms & Conditions.xlsx', index=False)
         cookie_policy_df.to_excel(writer, sheet_name='Cookie Policy.xlsx', index=False)
+        fit_finder_df.to_excel(writer, sheet_name='Fit Finder.xlsx', index=False)
 
         writer.save()
 
@@ -175,8 +182,8 @@ class Settings(object):
     @staticmethod
     def _selenium():
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
-        options.add_argument("window-size=1400,600")
+        # options.add_argument("--headless")
+        options.add_argument("window-size=1400,1000")
         browser = webdriver.Chrome(executable_path=CM().install(), options=options)
         return browser
 
