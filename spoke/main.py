@@ -50,27 +50,39 @@ class ListsInit(object):
         privacy.append(data)
 
     @staticmethod
-    def refer_friend_request_output(data):
+    def refer_friend_output(data):
         refer_friend.append(data)
 
     @staticmethod
-    def newsletter_request_output(data):
+    def newsletter_output(data):
         newsletter.append(data)
 
     @staticmethod
-    def impressum_request_output(data):
+    def impressum_output(data):
         impressum.append(data)
 
     @staticmethod
-    def terms_conditions_request_output(data):
+    def terms_conditions_output(data):
         terms_conditions.append(data)
 
     @staticmethod
-    def cookie_policy_request_output(data):
+    def cookie_policy_output(data):
         cookie_policy.append(data)
 
     @staticmethod
-    def fit_finder_request_output(data):
+    def fit_finder_output(data):
+        fit_finder.append(data)
+
+    @staticmethod
+    def log_in_output(data):
+        fit_finder.append(data)
+
+    @staticmethod
+    def register_output(data):
+        fit_finder.append(data)
+
+    @staticmethod
+    def forgotten_password_output(data):
         fit_finder.append(data)
 
 
@@ -90,6 +102,9 @@ impressum = []
 terms_conditions = []
 cookie_policy = []
 fit_finder = []
+log_in = []
+register = []
+forgotten_password = []
 
 
 class DataWriter(ListsInit):
@@ -115,6 +130,11 @@ class DataWriter(ListsInit):
         cookie_policy_df = self.clean_df(cookie_policy)
         fit_finder_df = self.clean_df(fit_finder)
 
+        log_in_df = self.clean_df(log_in)
+        register_df = self.clean_df(register)
+        forgotten_password_df = self.clean_df(forgotten_password)
+
+
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
         # Dataframes into xlsx sheets
@@ -134,6 +154,10 @@ class DataWriter(ListsInit):
         terms_conditions_df.to_excel(writer, sheet_name='Terms & Conditions.xlsx', index=False)
         cookie_policy_df.to_excel(writer, sheet_name='Cookie Policy.xlsx', index=False)
         fit_finder_df.to_excel(writer, sheet_name='Fit Finder.xlsx', index=False)
+
+        log_in_df.to_excel(writer, sheet_name='ACCOUNT - LOG IN.xlsx', index=False)
+        register_df.to_excel(writer, sheet_name='ACCOUNT - REGISTER.xlsx', index=False)
+        forgotten_password_df.to_excel(writer, sheet_name='ACCOUNT - FORGOTTEN PASSWORD.xlsx', index=False)
 
         writer.save()
 
