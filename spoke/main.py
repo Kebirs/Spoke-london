@@ -61,6 +61,10 @@ class ListsInit(object):
     def impressum_request_output(data):
         impressum.append(data)
 
+    @staticmethod
+    def terms_conditions_request_output(data):
+        terms_conditions.append(data)
+
 
 homepage = []
 about = []
@@ -75,6 +79,8 @@ privacy = []
 refer_friend = []
 newsletter = []
 impressum = []
+terms_conditions = []
+
 
 class DataWriter(ListsInit):
     def __init__(self):
@@ -95,6 +101,7 @@ class DataWriter(ListsInit):
         refer_friend_df = self.clean_df(refer_friend)
         newsletter_df = self.clean_df(newsletter)
         impressum_df = self.clean_df(impressum)
+        terms_conditions_df = self.clean_df(terms_conditions)
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
@@ -112,6 +119,7 @@ class DataWriter(ListsInit):
         refer_friend_df.to_excel(writer, sheet_name='Refer A Friend.xlsx', index=False)
         newsletter_df.to_excel(writer, sheet_name='Newsletter.xlsx', index=False)
         impressum_df.to_excel(writer, sheet_name='Impressum.xlsx', index=False)
+        terms_conditions_df.to_excel(writer, sheet_name='Terms & Conditions.xlsx', index=False)
 
         writer.save()
 
