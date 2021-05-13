@@ -65,6 +65,10 @@ class ListsInit(object):
     def terms_conditions_request_output(data):
         terms_conditions.append(data)
 
+    @staticmethod
+    def cookie_policy_request_output(data):
+        cookie_policy.append(data)
+
 
 homepage = []
 about = []
@@ -80,6 +84,7 @@ refer_friend = []
 newsletter = []
 impressum = []
 terms_conditions = []
+cookie_policy = []
 
 
 class DataWriter(ListsInit):
@@ -102,6 +107,7 @@ class DataWriter(ListsInit):
         newsletter_df = self.clean_df(newsletter)
         impressum_df = self.clean_df(impressum)
         terms_conditions_df = self.clean_df(terms_conditions)
+        cookie_policy_df = self.clean_df(cookie_policy)
 
         writer = pd.ExcelWriter('spoke-london.xlsx')
 
@@ -120,6 +126,7 @@ class DataWriter(ListsInit):
         newsletter_df.to_excel(writer, sheet_name='Newsletter.xlsx', index=False)
         impressum_df.to_excel(writer, sheet_name='Impressum.xlsx', index=False)
         terms_conditions_df.to_excel(writer, sheet_name='Terms & Conditions.xlsx', index=False)
+        cookie_policy_df.to_excel(writer, sheet_name='Cookie Policy.xlsx', index=False)
 
         writer.save()
 
