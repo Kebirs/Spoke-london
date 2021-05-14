@@ -112,27 +112,6 @@ class DataWriter(ListsInit):
         super(DataWriter, self).__init__()
 
     def main_output(self):
-        # Dataframes init and cleaning
-        homepage_df = self.clean_df(homepage)
-        about_df = self.clean_df(about)
-        careers_df = self.clean_df(careers)
-        faq_home_df = self.clean_df(faq_home)
-        return_policy_df = self.clean_df(return_policy)
-        size_charts_df = self.clean_df(size_charts)
-        contact_us_df = self.clean_df(contact_us)
-        not_found_df = self.clean_df(not_found)
-        submit_request_df = self.clean_df(submit_request)
-        privacy_df = self.clean_df(privacy)
-        refer_friend_df = self.clean_df(refer_friend)
-        newsletter_df = self.clean_df(newsletter)
-        impressum_df = self.clean_df(impressum)
-        terms_conditions_df = self.clean_df(terms_conditions)
-        cookie_policy_df = self.clean_df(cookie_policy)
-        fit_finder_df = self.clean_df(fit_finder)
-
-        log_in_df = self.clean_df(log_in)
-        register_df = self.clean_df(register)
-        forgotten_password_df = self.clean_df(forgotten_password)
 
         dfs = {'Homepage': self.clean_df(homepage),
                'About': self.clean_df(about),
@@ -152,47 +131,27 @@ class DataWriter(ListsInit):
                'Fit Finder': self.clean_df(fit_finder),
                'LOG IN': self.clean_df(log_in),
                'REGISTER': self.clean_df(register),
-               'FORGOTTEN PASSWORD': self.clean_df(forgotten_password),}
+               'FORGOTTEN PASSWORD': self.clean_df(forgotten_password), }
 
-        writer = pd.ExcelWriter('spoke-london.xlsx',  engine='xlsxwriter')
+        writer = pd.ExcelWriter('spoke-london.xlsx', engine='xlsxwriter')
 
-        # Auto adjust column width
-        for sheetname, df in dfs.items():  # loop through `dict` of dataframes
-            df.to_excel(writer, sheet_name=sheetname, index=False)  # send df to writer
-            worksheet = writer.sheets[sheetname]
-            # pull worksheet object
-            for idx, col in enumerate(df):  # loop through all columns
+        # Auto adjust column width, text wrap
+        for sheet_name, df in dfs.items():
+            df.to_excel(writer, sheet_name=sheet_name, index=False)
+            wb = writer.book
+            worksheet = writer.sheets[sheet_name]
+            text_format = wb.add_format({'text_wrap': True, 'valign': 'top'})
+
+            for idx, col in enumerate(df):
                 series = df[col]
-                max_len = max((
-                    series.astype(str).map(len).max(),  # len of largest item
-                    len(str(series.name))  # len of column name/header
-                )) + 1  # adding a little extra space
-                worksheet.set_column(idx, idx, max_len)  # set column width
-        writer.save()
+                max_len = max((series.astype(str).map(len).max(),
+                               len(str(series.name)))) / 3
+                if max_len > 100:
+                    worksheet.set_column(idx, idx, max_len, text_format)
+                else:
+                    worksheet.set_column(idx, idx, 30, text_format)
 
-        # # Dataframes into xlsx sheets
-        # about_df.to_excel(writer, sheet_name='About.xlsx', index=False)
-        # homepage_df.to_excel(writer, sheet_name='Homepage.xlsx', index=False)
-        # careers_df.to_excel(writer, sheet_name='Careers.xlsx', index=False)
-        # faq_home_df.to_excel(writer, sheet_name='FAQ.xlsx', index=False)
-        # return_policy_df.to_excel(writer, sheet_name='Return Policy.xlsx', index=False)
-        # size_charts_df.to_excel(writer, sheet_name='Size Charts.xlsx', index=False)
-        # contact_us_df.to_excel(writer, sheet_name='Contact Us.xlsx', index=False)
-        # not_found_df.to_excel(writer, sheet_name='Page Not Found (404).xlsx', index=False)
-        # submit_request_df.to_excel(writer, sheet_name='Submit Request.xlsx', index=False)
-        # privacy_df.to_excel(writer, sheet_name='Privacy Policy.xlsx', index=False)
-        # refer_friend_df.to_excel(writer, sheet_name='Refer A Friend.xlsx', index=False)
-        # newsletter_df.to_excel(writer, sheet_name='Newsletter.xlsx', index=False)
-        # impressum_df.to_excel(writer, sheet_name='Impressum.xlsx', index=False)
-        # terms_conditions_df.to_excel(writer, sheet_name='Terms & Conditions.xlsx', index=False)
-        # cookie_policy_df.to_excel(writer, sheet_name='Cookie Policy.xlsx', index=False)
-        # fit_finder_df.to_excel(writer, sheet_name='Fit Finder.xlsx', index=False)
-        #
-        # log_in_df.to_excel(writer, sheet_name='LOG IN.xlsx', index=False)
-        # register_df.to_excel(writer, sheet_name='REGISTER.xlsx', index=False)
-        # forgotten_password_df.to_excel(writer, sheet_name='FORGOTTEN PASSWORD.xlsx', index=False)
-        #
-        # writer.save()
+        writer.save()
 
     @staticmethod
     def clean_df(list_of_dicts):
@@ -239,7 +198,7 @@ class Settings(object):
     @staticmethod
     def _selenium():
         options = webdriver.ChromeOptions()
-        # options.add_argument("--headless")
+        options.add_argument("--headless")
         options.add_argument("window-size=1400,1000")
         browser = webdriver.Chrome(executable_path=CM().install(), options=options)
         return browser
