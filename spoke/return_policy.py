@@ -20,19 +20,18 @@ class ReturnPolicyPage(Settings, DataWriter):
         [self.banners_content(url) for url in banners_urls]
 
     def banners_content(self, url):
-
         content = self.get_banners(url)
-        sub_data = []
+        data = {}
 
         try:
             banner_title = content['includes']['Entry'][0]['fields']['title']
         except Exception:
             banner_title = ''
 
-        sub_data.append(banner_title)
+        data['Banner Title'] = banner_title
 
         page_content_list = content['includes']['Entry'][1]['fields']['content']
-
+        counter = 1
         for desc in page_content_list['content']:
             try:
                 path = desc['content']
@@ -42,13 +41,13 @@ class ReturnPolicyPage(Settings, DataWriter):
             if path:
                 for value in path:
                     try:
-                        text = value['value']
-                        sub_data.append(text)
+                        value = value['value']
+                        # sub_data.append(text)
+                        if value != '.':
+                            if value != '':
+                                counter += 1
+                                data[f'Return Policy Text {counter}'] = value
                     except KeyError:
                         pass
-
-        sub_data = self.clean_data(sub_data)
-
-        data = {'Return Policy Content': sub_data}
 
         self.return_policy_output(data)
