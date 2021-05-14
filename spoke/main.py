@@ -145,11 +145,11 @@ class DataWriter(ListsInit):
             for idx, col in enumerate(df):
                 series = df[col]
                 max_len = max((series.astype(str).map(len).max(),
-                               len(str(series.name)))) / 3
+                               len(str(series.name)))) + 1
                 if max_len > 100:
-                    worksheet.set_column(idx, idx, max_len, text_format)
+                    worksheet.set_column(idx, idx, max_len / 3, text_format)
                 else:
-                    worksheet.set_column(idx, idx, 30, text_format)
+                    worksheet.set_column(idx, idx, max_len, text_format)
 
         writer.save()
 
