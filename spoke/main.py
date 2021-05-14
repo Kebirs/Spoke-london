@@ -75,15 +75,15 @@ class ListsInit(object):
 
     @staticmethod
     def log_in_output(data):
-        fit_finder.append(data)
+        log_in.append(data)
 
     @staticmethod
     def register_output(data):
-        fit_finder.append(data)
+        register.append(data)
 
     @staticmethod
     def forgotten_password_output(data):
-        fit_finder.append(data)
+        forgotten_password.append(data)
 
 
 homepage = []
@@ -134,32 +134,65 @@ class DataWriter(ListsInit):
         register_df = self.clean_df(register)
         forgotten_password_df = self.clean_df(forgotten_password)
 
+        dfs = {'Homepage': self.clean_df(homepage),
+               'About': self.clean_df(about),
+               'Careers': self.clean_df(careers),
+               'FAQ': self.clean_df(faq_home),
+               'Return Policy': self.clean_df(return_policy),
+               'Size Charts': self.clean_df(size_charts),
+               'Contact Us': self.clean_df(contact_us),
+               'Page Not Found (404)': self.clean_df(not_found),
+               'Submit Request': self.clean_df(submit_request),
+               'Privacy Policy': self.clean_df(privacy),
+               'Refer A Friend': self.clean_df(refer_friend),
+               'Newsletter': self.clean_df(newsletter),
+               'Impressum': self.clean_df(impressum),
+               'Terms & Conditions': self.clean_df(terms_conditions),
+               'Cookie Policy': self.clean_df(cookie_policy),
+               'Fit Finder': self.clean_df(fit_finder),
+               'LOG IN': self.clean_df(log_in),
+               'REGISTER': self.clean_df(register),
+               'FORGOTTEN PASSWORD': self.clean_df(forgotten_password),}
 
-        writer = pd.ExcelWriter('spoke-london.xlsx')
+        writer = pd.ExcelWriter('spoke-london.xlsx',  engine='xlsxwriter')
 
-        # Dataframes into xlsx sheets
-        about_df.to_excel(writer, sheet_name='About.xlsx', index=False)
-        homepage_df.to_excel(writer, sheet_name='Homepage.xlsx', index=False)
-        careers_df.to_excel(writer, sheet_name='Careers.xlsx', index=False)
-        faq_home_df.to_excel(writer, sheet_name='FAQ.xlsx', index=False)
-        return_policy_df.to_excel(writer, sheet_name='Return Policy.xlsx', index=False)
-        size_charts_df.to_excel(writer, sheet_name='Size Charts.xlsx', index=False)
-        contact_us_df.to_excel(writer, sheet_name='Contact Us.xlsx', index=False)
-        not_found_df.to_excel(writer, sheet_name='Page Not Found (404).xlsx', index=False)
-        submit_request_df.to_excel(writer, sheet_name='Submit Request.xlsx', index=False)
-        privacy_df.to_excel(writer, sheet_name='Privacy Policy.xlsx', index=False)
-        refer_friend_df.to_excel(writer, sheet_name='Refer A Friend.xlsx', index=False)
-        newsletter_df.to_excel(writer, sheet_name='Newsletter.xlsx', index=False)
-        impressum_df.to_excel(writer, sheet_name='Impressum.xlsx', index=False)
-        terms_conditions_df.to_excel(writer, sheet_name='Terms & Conditions.xlsx', index=False)
-        cookie_policy_df.to_excel(writer, sheet_name='Cookie Policy.xlsx', index=False)
-        fit_finder_df.to_excel(writer, sheet_name='Fit Finder.xlsx', index=False)
-
-        log_in_df.to_excel(writer, sheet_name='ACCOUNT - LOG IN.xlsx', index=False)
-        register_df.to_excel(writer, sheet_name='ACCOUNT - REGISTER.xlsx', index=False)
-        forgotten_password_df.to_excel(writer, sheet_name='ACCOUNT - FORGOTTEN PASSWORD.xlsx', index=False)
-
+        # Auto adjust column width
+        for sheetname, df in dfs.items():  # loop through `dict` of dataframes
+            df.to_excel(writer, sheet_name=sheetname, index=False)  # send df to writer
+            worksheet = writer.sheets[sheetname]
+            # pull worksheet object
+            for idx, col in enumerate(df):  # loop through all columns
+                series = df[col]
+                max_len = max((
+                    series.astype(str).map(len).max(),  # len of largest item
+                    len(str(series.name))  # len of column name/header
+                )) + 1  # adding a little extra space
+                worksheet.set_column(idx, idx, max_len)  # set column width
         writer.save()
+
+        # # Dataframes into xlsx sheets
+        # about_df.to_excel(writer, sheet_name='About.xlsx', index=False)
+        # homepage_df.to_excel(writer, sheet_name='Homepage.xlsx', index=False)
+        # careers_df.to_excel(writer, sheet_name='Careers.xlsx', index=False)
+        # faq_home_df.to_excel(writer, sheet_name='FAQ.xlsx', index=False)
+        # return_policy_df.to_excel(writer, sheet_name='Return Policy.xlsx', index=False)
+        # size_charts_df.to_excel(writer, sheet_name='Size Charts.xlsx', index=False)
+        # contact_us_df.to_excel(writer, sheet_name='Contact Us.xlsx', index=False)
+        # not_found_df.to_excel(writer, sheet_name='Page Not Found (404).xlsx', index=False)
+        # submit_request_df.to_excel(writer, sheet_name='Submit Request.xlsx', index=False)
+        # privacy_df.to_excel(writer, sheet_name='Privacy Policy.xlsx', index=False)
+        # refer_friend_df.to_excel(writer, sheet_name='Refer A Friend.xlsx', index=False)
+        # newsletter_df.to_excel(writer, sheet_name='Newsletter.xlsx', index=False)
+        # impressum_df.to_excel(writer, sheet_name='Impressum.xlsx', index=False)
+        # terms_conditions_df.to_excel(writer, sheet_name='Terms & Conditions.xlsx', index=False)
+        # cookie_policy_df.to_excel(writer, sheet_name='Cookie Policy.xlsx', index=False)
+        # fit_finder_df.to_excel(writer, sheet_name='Fit Finder.xlsx', index=False)
+        #
+        # log_in_df.to_excel(writer, sheet_name='LOG IN.xlsx', index=False)
+        # register_df.to_excel(writer, sheet_name='REGISTER.xlsx', index=False)
+        # forgotten_password_df.to_excel(writer, sheet_name='FORGOTTEN PASSWORD.xlsx', index=False)
+        #
+        # writer.save()
 
     @staticmethod
     def clean_df(list_of_dicts):
