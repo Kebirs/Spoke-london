@@ -121,10 +121,10 @@ class SizeChartsPage(SizeChartBanners, HowToMeasureDynamic):
         [self.banners_content(url) for url in banners_urls]
 
     def scrape_static_content(self):
-        urls = ['https://spoke-london.com/pages/tops-size-chart',
+        urls = ['https://spoke-london.com/gb/pages/tops-size-chart',
                 'https://spoke-london.com/de/pages/tops-size-chart']
 
-        [self.size_charts_body(self.get_request(url)) for url in urls]
+        [self.size_charts_body(self.get_response(url)) for url in urls]
 
     def size_charts_body(self, url):
         self.all_possible_table_col_names(url)
@@ -162,11 +162,11 @@ class SizeChartsPage(SizeChartBanners, HowToMeasureDynamic):
     def all_possible_table_col_names(self, url):
         s = self._selenium()
         s.get(url.url)
-        time.sleep(5)
+        time.sleep(4)
 
         cols_path = '//th[@scope="col"]'
         primary_button = '//header[@class="styles_sizeChart__header__hqJBG"]//button'
-        navs = '//nav/a'
+        navs = "//div[contains(@class, 'sizeChart__nav')]//button"
 
         primary_button = s.find_element_by_xpath(primary_button)
         navs = s.find_elements_by_xpath(navs)
