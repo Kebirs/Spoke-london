@@ -1,5 +1,6 @@
 import time
 import cloudscraper
+from bs4 import BeautifulSoup as bs
 from lxml import html
 from spoke.main import Settings, DataWriter
 
@@ -21,28 +22,41 @@ class ProductsDetails(Settings, DataWriter):
         # [self.free_delivery_info(url) for url in delivery_links]
         # [self.products_details_page_body(self.get_request(url)) for url in urls]
 
-        links1 = ['https://spoke-london.com/gb/products/stone-summerweights-2',
-                  'https://spoke-london.com/gb/products/charcoal',
-                  'https://spoke-london.com/gb/products/khaki-sharps',
-                  'https://spoke-london.com/gb/products/navy-stripe-tolo',
-                  'https://spoke-london.com/gb/products/charcoal-house-trouser',
-                  'https://spoke-london.com/gb/products/navy-stripe-tolo',
-                  'https://spoke-london.com/gb/products/broken-in',
-                  'https://spoke-london.com/gb/products/army-friday-shorts']
+        # links1 = ['https://spoke-london.com/gb/products/stone-summerweights-2',
+        #           'https://spoke-london.com/gb/products/charcoal',
+        #           'https://spoke-london.com/gb/products/khaki-sharps',
+        #           'https://spoke-london.com/gb/products/navy-stripe-tolo',
+        #           'https://spoke-london.com/gb/products/charcoal-house-trouser',
+        #           'https://spoke-london.com/gb/products/navy-stripe-tolo',
+        #           'https://spoke-london.com/gb/products/broken-in',
+        #           'https://spoke-london.com/gb/products/army-friday-shorts']
+        #
+        # links2 = ['https://spoke-london.com/de/products/stone-summerweights-2',
+        #           'https://spoke-london.com/de/products/charcoal',
+        #           'https://spoke-london.com/de/products/khaki-sharps',
+        #           'https://spoke-london.com/de/products/navy-stripe-tolo',
+        #           'https://spoke-london.com/de/products/charcoal-house-trouser',
+        #           'https://spoke-london.com/de/products/navy-stripe-tolo',
+        #           'https://spoke-london.com/de/products/broken-in',
+        #           'https://spoke-london.com/de/products/army-friday-shorts']
 
-        links2 = ['https://spoke-london.com/de/products/stone-summerweights-2',
-                  'https://spoke-london.com/de/products/charcoal',
-                  'https://spoke-london.com/de/products/khaki-sharps',
-                  'https://spoke-london.com/de/products/navy-stripe-tolo',
-                  'https://spoke-london.com/de/products/charcoal-house-trouser',
-                  'https://spoke-london.com/de/products/navy-stripe-tolo',
-                  'https://spoke-london.com/de/products/broken-in',
-                  'https://spoke-london.com/de/products/army-friday-shorts']
+        s = cloudscraper.create_scraper()
+        r = s.get('https://spoke-london.com/eu/sitemap_products_1.xml')
+        soup = bs(r.text, 'lxml')
 
-        links = [i for j in zip(links1, links2) for i in j]
+        links_eu = [i.text for i in soup.find_all('loc')]
+
+        links_us = [i.replace('eu', 'us') for i in links_eu]
+        links_de = [i.replace('eu', 'de') for i in links_eu]
+
+        links = [i for j in zip(links_us, links_de) for i in j]
 
         [self.free_delivery_info(url) for url in delivery_links]
-        [self.products_details_page_body(self.get_request(url)) for url in links]
+
+        for url in links:
+            resp = self.get_response(url)
+            if resp:
+                self.products_details_page_body(resp)
 
     def products_details_page_body(self, url):
         data = {}
@@ -90,8 +104,8 @@ class ProductsDetails(Settings, DataWriter):
         basket_button_text = html.fromstring(url.text).xpath(basket_button_text)
 
         button_labels = html.fromstring(url.text).xpath(button_labels)
+
         button_divs = html.fromstring(url.text).xpath(button_divs_text)
-        # button_divs = [x.xpath('string()') for x in button_divs]
 
         properties = [title, byline, types, color, title_above_sizes_1, build, build_desc,
                       title_above_sizes_2, title_under_sizes_2, size_helper, leg_types, quick_links_text,
@@ -102,12 +116,15 @@ class ProductsDetails(Settings, DataWriter):
             data[f'Text {idx}'] = self.clean_data(x)
             if x is size_helper:
                 data['Size Helper'] = self.clean_data(x)
+            elif x is button_labels:
+                data['Button labels'] = self.clean_data(x)
 
         for idx, x in enumerate(button_divs):
             text = x.xpath('string()')
             data[f'PRODUCT DESC {idx}'] = text
 
         self.products_details_output(data)
+
 
     def free_delivery_info(self, url):
         content = self.get_banners(url)
