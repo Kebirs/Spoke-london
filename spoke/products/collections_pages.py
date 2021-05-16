@@ -15,7 +15,7 @@ class CollectionsPage(Settings, DataWriter):
                 'https://spoke-london.com/de/pages/about']
 
         # [self.collections_page_body(self.get_request(url)) for url in urls]
-        [self.get_links(self.get_request(url)) for url in urls]
+        [self.get_links(self.get_response(url)) for url in urls]
 
     def get_links(self, url):
         data = {}
@@ -32,7 +32,7 @@ class CollectionsPage(Settings, DataWriter):
             sub_data = []
             self.links.append(link)
 
-            r = self.get_request(link)
+            r = self.get_response(link)
             print(f'|{r.status_code} collection link: {link}')
 
             title = html.fromstring(r.text).xpath(title)

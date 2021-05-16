@@ -21,20 +21,19 @@ class ProductsDetails(Settings, DataWriter):
             'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=1EGp9l4cH1DPBtAjMJlWBG&locale=de-DE'
         ]
 
-        # s = cloudscraper.create_scraper()
-        # r = s.get('https://spoke-london.com/eu/sitemap_products_1.xml')
-        # soup = bs(r.text, 'lxml')
-        #
-        # links_eu = [i.text for i in soup.find_all('loc')]
-        # links_us = [i.replace('eu', 'us') for i in links_eu]
-        # links_de = [i.replace('eu', 'de') for i in links_eu]
-        # links = [i for j in zip(links_eu, links_de) for i in j]
-        #
-        # for url in links:
-        #     resp = self.get_response(url)
-        #     if resp:
-        #         self.products_details_page_body(resp)
+        s = cloudscraper.create_scraper()
+        r = s.get('https://spoke-london.com/eu/sitemap_products_1.xml')
+        soup = bs(r.text, 'lxml')
 
+        links_eu = [i.text for i in soup.find_all('loc')]
+        links_us = [i.replace('eu', 'us') for i in links_eu]
+        links_de = [i.replace('eu', 'de') for i in links_eu]
+        links = [i for j in zip(links_eu, links_de) for i in j]
+
+        for url in links:
+            resp = self.get_response(url)
+            if resp:
+                self.products_details_page_body(resp)
 
         below_prod_urls = ['https://spoke-london.com/gb/products/olive-flex',
                            'https://spoke-london.com/de/products/olive-flex']

@@ -12,7 +12,7 @@ class CareersPage(Settings, DataWriter):
     def scrape_content(self):
         # Only one cause there is not a Deutsch version of this page
         url = 'https://apply.workable.com/api/v1/accounts/spoke?full=true'
-        resp = self.get_request(url)
+        resp = self.get_response(url)
 
         self.careers_page_body(resp)
 

@@ -21,7 +21,7 @@ class FAQPage(Settings, DataWriter):
         urls = ['https://spokelondon.zendesk.com/hc/en-us',
                 'https://spokelondon.zendesk.com/hc/de']
 
-        [self.faq_home_body(self.get_request(url)) for url in urls]
+        [self.faq_home_body(self.get_response(url)) for url in urls]
 
     def faq_home_body(self, url):
         self.sign_in(url)

@@ -13,7 +13,7 @@ class NPSFeedbackPage(Settings, DataWriter):
         urls = ['https://spoke-london.com/gb/pages/spoke-feedback',
                 'https://spoke-london.com/de/pages/spoke-feedback']
 
-        [self.nps_page_body(self.get_request(url)) for url in urls]
+        [self.nps_page_body(self.get_response(url)) for url in urls]
 
     def nps_page_body(self, url):
         data = {}

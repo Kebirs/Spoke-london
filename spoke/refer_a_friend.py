@@ -34,4 +34,4 @@ class ReferFriendPage(Settings, DataWriter):
 
         data['REFER A FRIEND Content'] = content
 
-        self.refer_friend_request_output(data)
+        self.refer_friend_output(data)

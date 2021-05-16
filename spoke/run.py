@@ -18,6 +18,15 @@ from spoke.fit_finder import FitFinderPage
 from spoke.account.log_in import LogInPage
 from spoke.account.register import RegisterPage
 from spoke.account.forgotten_password import ForgottenPasswordPage
+from spoke.account.after_log_in_page import AfterLogInPage
+from spoke.products.collections_pages import CollectionsPage
+from spoke.products.products_details import ProductsDetails
+from spoke.nps_feedback import NPSFeedbackPage
+from spoke.checkout import CheckoutPage
+from spoke.products.filter_my_size import FilterMySize
+from spoke.products.products_hover_banners import ProductsBanners
+from spoke.arrange_return import ArrangeReturn
+from spoke.products.products_benefits import ProductsBenefits
 from spoke.main import DataWriter
 
 
@@ -39,19 +48,30 @@ class SpokeScraperCore(DataWriter):
         # ReturnPolicyPage(), print('ReturnPolicyPage done')
         # SizeChartsPage(), print('SizeChartsPage done')
         # ContactUsPage(), print('ContactUsPage done')
-        # NotFoundPage(), print('NotFoundPage done')
+        # # NotFoundPage(), print('NotFoundPage done')
         # SubmitRequestPage(), print('SubmitRequestPage done')
         # PrivacyPolicyPage(), print('PrivacyPolicyPage done')
         # ReferFriendPage(), print('ReferFriendPage done')
         # NewsletterPage(), print('NewsletterPage done')
         # ImpressumPage(), print('ImpressumPage done')
         # TermsConditionsPage(), print('TermsConditionsPage done')
-        # CookiePolicyPage(), print('CookiePolicyPage done')
+        CookiePolicyPage(), print('CookiePolicyPage done')
         # FitFinderPage(), print('FitFinderPage done')
+        # NPSFeedbackPage(), print('NPSFeedbackPage done')
+        # CheckoutPage(), print('CheckoutPage done')
+        # ArrangeReturn(), print('ArrangeReturn done')
 
-        LogInPage(), print('LogInPage done')
+        # LogInPage(), print('LogInPage done')
         # RegisterPage(), print('RegisterPage done')
         # ForgottenPasswordPage(), print('ForgottenPasswordPage done')
+        # AfterLogInPage(), print('AfterLogInPage done')
+        #
+        # CollectionsPage(), print('CollectionsPage done')
+        # ProductsBenefits(), print('ProductsBenefits done')
+        # FilterMySize(), print('FilterMySize done')
+        # ProductsBanners(), print('ProductsBanners done')
+        # ProductsDetails(), print('ProductsDetails done')
+
 
 if __name__ == '__main__':
     SpokeScraperCore()

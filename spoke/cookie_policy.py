@@ -9,7 +9,6 @@ class CookiePolicyPage(Settings, DataWriter):
 
     def scrape_content(self):
         cdn_id = self.get_cdn_id('https://spoke-london.com/de/pages/cookies')
-        'MTDZuX9OyRjJ7oK4Wi3vg'
 
         banners_urls = [
             f'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id={cdn_id}&locale=en-GB&include=6',
@@ -31,7 +30,7 @@ class CookiePolicyPage(Settings, DataWriter):
         self.scrape_text_from_json(page_content_list, data, 'COOKIE POLICY Text')
         self.scrape_table_from_json(page_content_cookie_table, data, 'COOKIE POLICY TABLE Text ROW')
 
-        self.cookie_policy_request_output(data)
+        self.cookie_policy_output(data)
 
     def scrape_text_from_json(self, target_list, data, column_name):
         counter = 1

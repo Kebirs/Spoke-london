@@ -1,5 +1,3 @@
-import re
-
 from spoke.main import DataWriter, Settings
 from lxml import html
 
@@ -13,7 +11,7 @@ class SubmitRequestPage(Settings, DataWriter):
         urls = ['https://spokelondon.zendesk.com/hc/en-us/requests/new',
                 'https://spokelondon.zendesk.com/hc/de/requests/new']
 
-        [self.submit_request_page_body(self.get_request(url)) for url in urls]
+        [self.submit_request_page_body(self.get_response(url)) for url in urls]
 
     def submit_request_page_body(self, url):
         data = {}

@@ -42,7 +42,6 @@ class ReturnPolicyPage(Settings, DataWriter):
                 for value in path:
                     try:
                         value = value['value']
-                        # sub_data.append(text)
                         if value != '.':
                             if value != '':
                                 counter += 1

@@ -11,7 +11,7 @@ class ContactUsPage(Settings, DataWriter):
         urls = ['https://spoke-london.com/gb/pages/contact-us',
                 'https://spoke-london.com/de/pages/contact-us']
 
-        [self.contact_us_page_body(self.get_request(url)) for url in urls]
+        [self.contact_us_page_body(self.get_response(url)) for url in urls]
 
     def contact_us_page_body(self, url):
         data = {}

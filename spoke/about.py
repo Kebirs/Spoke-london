@@ -9,7 +9,7 @@ class SecondMenu(Settings, DataWriter):
     def menu_content_about(self, url):
         # TODO: Split it ...
         data = {}
-        resp = self.get_request(url)
+        resp = self.get_response(url)
         sec_menu = html.fromstring(resp.text).xpath('//header//text()')
         sec_menu = self.clean_data(sec_menu)
         data['Second Menu Text'] = sec_menu
@@ -28,7 +28,7 @@ class AboutPage(SecondMenu):
 
         [self.menu_content_about(url) for url in urls]
         # [self.first_banner(self.get_request(url)) for url in urls]
-        [self.about_page_body(self.get_request(url)) for url in urls]
+        [self.about_page_body(self.get_response(url)) for url in urls]
 
     def about_page_body(self, url):
         self.first_banner(url)

@@ -17,7 +17,6 @@ class PrivacyPolicyPage(Settings, DataWriter):
         [self.privacy_page_body(url) for url in banners_urls]
 
     def privacy_page_body(self, url):
-        # TODO: split it right way
         content = self.get_banners(url)
         data = {}
 

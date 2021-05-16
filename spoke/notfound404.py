@@ -14,7 +14,7 @@ class NotFoundPage(Settings, DataWriter):
         # Also this link not working
         # https://spoke-london.com/de/pages/edit-preorder
 
-        self.not_found_page_body(self.get_request(url))
+        self.not_found_page_body(self.get_response(url))
 
     def not_found_page_body(self, url):
         content = '//div[@class="wrapper__content"]//text()'

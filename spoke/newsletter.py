@@ -11,7 +11,7 @@ class NewsletterPage(Settings, DataWriter):
         urls = ['https://spoke-london.com/gb/pages/newsletter-confirmation-page',
                 'https://spoke-london.com/de/pages/newsletter-confirmation-page']
 
-        [self.newsletter_page_body(self.get_request(url)) for url in urls]
+        [self.newsletter_page_body(self.get_response(url)) for url in urls]
 
     def newsletter_page_body(self, url):
         data = {}
@@ -32,4 +32,4 @@ class NewsletterPage(Settings, DataWriter):
         data['Newsletter Notes'] = notes
         data['Newsletter Button'] = button
 
-        self.newsletter_request_output(data)
+        self.newsletter_output(data)

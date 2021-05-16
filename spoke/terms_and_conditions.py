@@ -36,4 +36,4 @@ class TermsConditionsPage(Settings, DataWriter):
                 except KeyError:
                     pass
 
-        self.terms_conditions_request_output(data)
+        self.terms_conditions_output(data)

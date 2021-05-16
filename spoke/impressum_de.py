@@ -35,4 +35,4 @@ class ImpressumPage(Settings, DataWriter):
                 except KeyError:
                     pass
 
-        self.impressum_request_output(data)
+        self.impressum_output(data)

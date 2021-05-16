@@ -283,7 +283,7 @@ class FitFinderPage(FitFinderSteps):
         self.step_11(s, data, sub_data), sub_data.clear()
         self.step_last(s, data, sub_data), sub_data.clear()
 
-        self.fit_finder_request_output(data)
+        self.fit_finder_output(data)
 
 
 

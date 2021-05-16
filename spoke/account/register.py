@@ -11,7 +11,7 @@ class RegisterPage(Settings, DataWriter):
         urls = ['https://gb.spoke-london.com/account/register',
                 'https://de.spoke-london.com/account/register']
 
-        [self.register_page_body(self.get_request(url)) for url in urls]
+        [self.register_page_body(self.get_response(url)) for url in urls]
 
     def register_page_body(self, url):
         data = {}

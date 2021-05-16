@@ -1,6 +1,7 @@
 import time
 import cloudscraper
 import re
+
 from lxml import html
 
 from selenium.webdriver.common.by import By
@@ -347,7 +348,7 @@ class BrandHomePage(Menu, Banners, Footer):
 
         data = {}
 
-        resp = self.get_request(url)
+        resp = self.get_response(url)
 
         # Newsletter popup text
         newsletter_tree = html.fromstring(resp.text).xpath('//div[@data-lightbox="newsletter"]//text()')
