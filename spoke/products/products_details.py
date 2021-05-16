@@ -11,34 +11,9 @@ class ProductsDetails(Settings, DataWriter):
         self.scrape_content()
 
     def scrape_content(self):
-
-        urls = ['https://spoke-london.com/gb/products/stone-summerweights-2',
-                'https://spoke-london.com/de/products/stone-summerweights-2']
-
         delivery_links = [
             'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=1EGp9l4cH1DPBtAjMJlWBG&locale=en-GB',
             'https://cdn.contentful.com/spaces/amhdwl2zsv5z/environments/master/entries?sys.id=1EGp9l4cH1DPBtAjMJlWBG&locale=de-DE']
-
-        # [self.free_delivery_info(url) for url in delivery_links]
-        # [self.products_details_page_body(self.get_request(url)) for url in urls]
-
-        # links1 = ['https://spoke-london.com/gb/products/stone-summerweights-2',
-        #           'https://spoke-london.com/gb/products/charcoal',
-        #           'https://spoke-london.com/gb/products/khaki-sharps',
-        #           'https://spoke-london.com/gb/products/navy-stripe-tolo',
-        #           'https://spoke-london.com/gb/products/charcoal-house-trouser',
-        #           'https://spoke-london.com/gb/products/navy-stripe-tolo',
-        #           'https://spoke-london.com/gb/products/broken-in',
-        #           'https://spoke-london.com/gb/products/army-friday-shorts']
-        #
-        # links2 = ['https://spoke-london.com/de/products/stone-summerweights-2',
-        #           'https://spoke-london.com/de/products/charcoal',
-        #           'https://spoke-london.com/de/products/khaki-sharps',
-        #           'https://spoke-london.com/de/products/navy-stripe-tolo',
-        #           'https://spoke-london.com/de/products/charcoal-house-trouser',
-        #           'https://spoke-london.com/de/products/navy-stripe-tolo',
-        #           'https://spoke-london.com/de/products/broken-in',
-        #           'https://spoke-london.com/de/products/army-friday-shorts']
 
         s = cloudscraper.create_scraper()
         r = s.get('https://spoke-london.com/eu/sitemap_products_1.xml')
@@ -49,11 +24,11 @@ class ProductsDetails(Settings, DataWriter):
         links_us = [i.replace('eu', 'us') for i in links_eu]
         links_de = [i.replace('eu', 'de') for i in links_eu]
 
-        links = [i for j in zip(links_us, links_de) for i in j]
+        links = [i for j in zip(links_eu, links_de) for i in j]
 
         [self.free_delivery_info(url) for url in delivery_links]
 
-        for url in links:
+        for url in links[128:132]:
             resp = self.get_response(url)
             if resp:
                 self.products_details_page_body(resp)
@@ -119,8 +94,15 @@ class ProductsDetails(Settings, DataWriter):
             elif x is button_labels:
                 data['Button labels'] = self.clean_data(x)
 
+        if len(button_divs) == 0:
+            button_divs = 'x'
+
         for idx, x in enumerate(button_divs):
-            text = x.xpath('string()')
+            try:
+                text = x.xpath('string()')
+            except Exception:
+                text = ''
+
             data[f'PRODUCT DESC {idx}'] = text
 
         self.products_details_output(data)
