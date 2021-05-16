@@ -179,6 +179,7 @@ class SizeChartsPage(SizeChartBanners, HowToMeasureDynamic):
             for col in cols:
                 sub_data.append(col.text)
 
+        sub_data = list(dict.fromkeys(sub_data))
         sub_data = self.clean_data(sub_data)
 
         data = {'Table column names': sub_data}
