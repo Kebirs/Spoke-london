@@ -61,14 +61,14 @@ class SpokeScraperCore(DataWriter):
         # CheckoutPage(), print('CheckoutPage done')
         # ArrangeReturn(), print('ArrangeReturn done')
 
-        # LogInPage(), print('LogInPage done')
+        LogInPage(), print('LogInPage done')
         # RegisterPage(), print('RegisterPage done')
         # ForgottenPasswordPage(), print('ForgottenPasswordPage done')
         # AfterLogInPage(), print('AfterLogInPage done')
         #
         # CollectionsPage(), print('CollectionsPage done')
         # ProductsBenefits(), print('ProductsBenefits done')
-        # FilterMySize(), print('FilterMySize done')
+        FilterMySize(), print('FilterMySize done')
         # ProductsBanners(), print('ProductsBanners done')
         # ProductsDetails(), print('ProductsDetails done')
 
