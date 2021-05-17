@@ -23,6 +23,9 @@ class ReturnPolicyPage(Settings, DataWriter):
         content = self.get_banners(url)
         data = {}
 
+        data['Link'] = 'https://spoke-london.com/pages/return-policy'
+        data['Link direct'] = url
+
         try:
             banner_title = content['includes']['Entry'][0]['fields']['title']
         except Exception:
