@@ -15,6 +15,7 @@ class ContactUsPage(Settings, DataWriter):
 
     def contact_us_page_body(self, url):
         data = {}
+        data['Link'] = url.url
 
         sections = "//*[contains(@class, 'styles_contact__section')]"
         title = "//h2[contains(@class, 'contact__title')]/text()"

@@ -7,7 +7,6 @@ class SecondMenu(Settings, DataWriter):
         super(SecondMenu, self).__init__()
 
     def menu_content_about(self, url):
-        # TODO: Split it ...
         data = {}
         resp = self.get_response(url)
         sec_menu = html.fromstring(resp.text).xpath('//header//text()')
@@ -26,9 +25,9 @@ class AboutPage(SecondMenu):
         urls = ['https://spoke-london.com/gb/pages/about',
                 'https://spoke-london.com/de/pages/about']
 
-        [self.menu_content_about(url) for url in urls]
         # [self.first_banner(self.get_request(url)) for url in urls]
         [self.about_page_body(self.get_response(url)) for url in urls]
+        [self.menu_content_about(url) for url in urls]
 
     def about_page_body(self, url):
         self.first_banner(url)
@@ -39,6 +38,7 @@ class AboutPage(SecondMenu):
 
     def first_banner(self, url):
         data = {}
+        data['Link'] = url.url
         text = html.fromstring(url.text).xpath('//h1[@class="banner__title"]//text()')
         text = self.clean_data(text)
         data['First banner'] = text

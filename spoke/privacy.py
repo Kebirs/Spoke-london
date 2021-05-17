@@ -19,6 +19,9 @@ class PrivacyPolicyPage(Settings, DataWriter):
     def privacy_page_body(self, url):
         content = self.get_banners(url)
         data = {}
+        data['Link'] = 'https://spoke-london.com/pages/privacy'
+
+        data['Link direct'] = url
 
         page_content_list = content['includes']['Entry'][0]['fields']['content']['content']
 

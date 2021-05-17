@@ -15,6 +15,7 @@ class NewsletterPage(Settings, DataWriter):
 
     def newsletter_page_body(self, url):
         data = {}
+        data['Link'] = url.url
 
         title = "//div[contains(@class, 'landing__content')]/h1/text()"
         notes = "//div[contains(@class, 'landing__content')]/h1/../p/text()"

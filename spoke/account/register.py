@@ -15,6 +15,7 @@ class RegisterPage(Settings, DataWriter):
 
     def register_page_body(self, url):
         data = {}
+        data['Link'] = url.url
 
         root = "//form[@id='create_customer']"
 

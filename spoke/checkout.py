@@ -25,7 +25,7 @@ class CheckoutPage(Settings, DataWriter):
 
     def checkout_page_body(self, url):
         data = {}
-
+        data['Link'] = url
         s = self._selenium()
         s.get(url)
         # time.sleep(5)

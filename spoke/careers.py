@@ -20,11 +20,13 @@ class CareersPage(Settings, DataWriter):
         self.company_desc(url)
 
     def company_desc(self, url):
-        data = url.json()
-        desc = data['details']['overview']['description']
+        data = {}
+        content = url.json()
+        desc = content['details']['overview']['description']
         clean_desc = bs(desc, 'lxml').text
 
-        data = {'Company Description': clean_desc}
+        data['Link'] = url.url
+        data['Company Description'] = clean_desc
 
         self.careers_output(data)
 

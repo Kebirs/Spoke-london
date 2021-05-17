@@ -28,6 +28,8 @@ class ProductsBenefits(Settings, DataWriter):
         content = self.get_banners(url)
         data = {}
 
+        data['Link for banner, data related to productType'] = url
+
         all_contents = content['includes']['Entry']
 
         for i in all_contents:

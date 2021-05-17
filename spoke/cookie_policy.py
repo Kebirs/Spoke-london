@@ -19,12 +19,13 @@ class CookiePolicyPage(Settings, DataWriter):
     def cookie_policy_page_body(self, url):
         content = self.get_banners(url)
         data = {}
+        data['Link'] = 'https://spoke-london.com/pages/cookies'
 
         page_content_list = content['includes']['Entry'][0]['fields']['content']['content']
         page_content_title = content['includes']['Entry'][1]['fields']['title']
         page_content_cookie_table = content['includes']['Entry'][2]['fields']['table']['table']
 
-        data['Link'] = url
+        data['Link direct'] = url
         data['COOKIE POLICY Title'] = page_content_title
 
         self.scrape_text_from_json(page_content_list, data, 'COOKIE POLICY Text')

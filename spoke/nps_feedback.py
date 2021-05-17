@@ -17,6 +17,7 @@ class NPSFeedbackPage(Settings, DataWriter):
 
     def nps_page_body(self, url):
         data = {}
+        data['Link'] = url.url
 
         banner_content = "//div[contains(@class, 'formHeader__6-JBs')]//text()"
         questions = "//p[contains(@class, 'styles_form__label')]/text()"

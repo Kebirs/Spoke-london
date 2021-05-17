@@ -29,9 +29,12 @@ class FAQPage(Settings, DataWriter):
         self.blocks_item_cat(url)
 
     def sign_in(self, url):
+        data = {}
+        data['Link'] = url.url
         soup = bs(url.text, 'lxml')
         login = soup.find('a', {'class': 'login'}).text
-        data = {'Login Button': login}
+
+        data['Login Button'] = login
 
         self.faq_home_output(data)
 

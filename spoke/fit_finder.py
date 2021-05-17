@@ -263,6 +263,7 @@ class FitFinderPage(FitFinderSteps):
 
     def fit_finder_body(self, url):
         data = {}
+        data['Link'] = url
         sub_data = []
 
         s = self._selenium()

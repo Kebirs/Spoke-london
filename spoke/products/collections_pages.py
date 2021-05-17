@@ -19,6 +19,7 @@ class CollectionsPage(Settings, DataWriter):
 
     def get_links(self, url):
         data = {}
+        data['Link'] = url.url
 
         all_links = "//div[@id='Products']//a[contains(@href, 'collections')]/@href"
         all_links = html.fromstring(url.text).xpath(all_links)

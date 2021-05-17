@@ -22,6 +22,7 @@ class ProductsBanners(Settings, DataWriter):
     def banners_content(self, url):
         content = self.get_banners(url)
         data = {}
+        data['Hover images with pop up (shorts, tops, trousers) Here direct urls'] = url
 
         all_contents = content['includes']['Entry']
 

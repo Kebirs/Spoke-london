@@ -139,6 +139,7 @@ class ProductsDetails(Settings, DataWriter):
     def below_product_content(self, url):
         data = {}
         s = self._selenium()
+        data['Link'] = url
         s.get(url)
 
         ex_content_load = "//h1[contains(@class, 'productForm__title')]"

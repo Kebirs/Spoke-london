@@ -18,6 +18,7 @@ class Menu(Settings, DataWriter):
 
     def over_navbar_info(self, url):
         data = {}
+        data['Link'] = url
 
         script_data = self.json_script_data(url)
         over_navbar_text = script_data['props']['initialState']['header']['menu']['items'][0]['flashBanner']['flashBannerItems']['items'][0]['bannerName']

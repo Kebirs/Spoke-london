@@ -17,6 +17,8 @@ class ForgottenPasswordPage(Settings, DataWriter):
 
     def forgotten_password_page_body(self, url):
         data = {}
+        data['Link'] = url.url
+
         s = self._selenium()
         s.get(url.url)
         root = "//form[contains(@class, 'forgotten-password')]"

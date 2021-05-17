@@ -16,6 +16,8 @@ class SizeChartBanners(Settings, DataWriter):
 
     def banners_content(self, url):
         content = self.get_banners(url)
+        data= {}
+        data['Link direct'] = url
         sub_data = []
         static_data_title = content['items'][0]['fields']['title']
         sub_data.append(static_data_title)
@@ -38,7 +40,8 @@ class SizeChartBanners(Settings, DataWriter):
 
         sub_data = self.clean_data(sub_data)
 
-        data = {'Banners Content': sub_data}
+        data['Banners Content'] = sub_data
+
         self.size_charts_output(data)
 
 
@@ -161,6 +164,8 @@ class SizeChartsPage(SizeChartBanners, HowToMeasureDynamic):
 
     def all_possible_table_col_names(self, url):
         s = self._selenium()
+        data = {}
+        data['Link'] = url.url
         s.get(url.url)
         time.sleep(4)
 
@@ -182,7 +187,7 @@ class SizeChartsPage(SizeChartBanners, HowToMeasureDynamic):
         sub_data = list(dict.fromkeys(sub_data))
         sub_data = self.clean_data(sub_data)
 
-        data = {'Table column names': sub_data}
+        data['Table column names'] = sub_data
 
         self.size_charts_output(data)
 

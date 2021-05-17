@@ -22,6 +22,7 @@ class FilterMySize(Settings, DataWriter):
 
     def filter_size_button(self, url):
         data = {}
+        data['Link'] = url
         s = self._selenium()
         s.get(url)
         time.sleep(2)

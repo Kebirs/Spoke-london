@@ -19,9 +19,10 @@ class ImpressumPage(Settings, DataWriter):
     def impressum_page_body(self, url):
         content = self.get_banners(url)
         data = {}
+        data['Link'] = 'https://spoke-london.com/de/pages/impressum'
 
         page_content_list = content['includes']['Entry'][1]['fields']['content']['content']
-        data['Link'] = url
+        data['Link direct'] = url
 
         counter = 0
         for i in page_content_list:

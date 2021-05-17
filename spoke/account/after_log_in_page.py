@@ -32,9 +32,11 @@ class AfterLogInPage(Settings, DataWriter):
         self.referrals(s)
         self.settings(s)
 
-    @staticmethod
-    def log_in(s, url):
+    def log_in(self, s, url):
+        data = {}
         s.get(url.url)
+
+        data['Link'] = url.url
 
         root = "//form[@id='customer_login']"
 
@@ -77,6 +79,7 @@ class AfterLogInPage(Settings, DataWriter):
                     status = 1
         except Exception:
             pass
+        self.account_output(data)
 
     def your_fit(self, s):
         time.sleep(3)

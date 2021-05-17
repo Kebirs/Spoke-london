@@ -18,6 +18,8 @@ class LogInPage(Settings, DataWriter):
 
     def log_in_page_body(self, url):
         data = {}
+        data['Link'] = url.url
+
         s = self._selenium()
         root = "//form[@id='customer_login']"
 

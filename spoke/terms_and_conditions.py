@@ -21,7 +21,8 @@ class TermsConditionsPage(Settings, DataWriter):
         data = {}
 
         page_content_list = content['includes']['Entry'][0]['fields']['content']['content']
-        data['Link'] = url
+        data['Link'] = 'https://spoke-london.com/pages/terms'
+        data['Link direct'] = url
 
         counter = 0
         for i in page_content_list:

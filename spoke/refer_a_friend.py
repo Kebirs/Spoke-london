@@ -20,6 +20,7 @@ class ReferFriendPage(Settings, DataWriter):
 
     def refer_friend_page_body(self, url):
         data = {}
+        data['Link'] = url
 
         s = self._selenium()
         s.get(url)
