@@ -1,3 +1,5 @@
+import cloudscraper
+
 from spoke.main import DataWriter, Settings
 from lxml import html
 
@@ -14,7 +16,10 @@ class NotFoundPage(Settings, DataWriter):
         # Also this link not working
         # https://spoke-london.com/de/pages/edit-preorder
 
-        self.not_found_page_body(self.get_response(url))
+        s = cloudscraper.create_scraper()
+        r = s.get(url)
+
+        self.not_found_page_body(r)
 
     def not_found_page_body(self, url):
         content = '//div[@class="wrapper__content"]//text()'

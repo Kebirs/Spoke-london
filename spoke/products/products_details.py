@@ -1,8 +1,10 @@
+import re
 import time
 import cloudscraper
 import selenium.common.exceptions
 from bs4 import BeautifulSoup as bs
 from lxml import html
+from lxml.html.clean import Cleaner
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -63,8 +65,8 @@ class ProductsDetails(Settings, DataWriter):
         leg_types = "//ul[contains(@class, 'productForm__options')]/li[contains(@class, 'options')]//text()"
         quick_links_text = "//div[contains(@class, 'productForm__quickLinks')]//text()"
         basket_button_text = "//button[contains(@class, 'add-to-cart')]/span/text()"
-        button_labels = "//div[@class='styles_accordion__section__3yPCM']//button/@label"
-        button_divs_text = "//div[@class='styles_accordion__section__3yPCM']/div"
+        button_labels = "//div[@class='styles_accordion__section__3yPCM']//button/text()"
+        button_divs_text = "//div[@class='styles_accordion__section__3yPCM']/div/*[not(self::style)]"
 
         main_title1_below_product = "//p[contains(@class, 'productPageYmal__title')]/text()"
 
@@ -121,10 +123,12 @@ class ProductsDetails(Settings, DataWriter):
         for idx, x in enumerate(button_divs):
             try:
                 text = x.xpath('string()')
+                cleaner = Cleaner(comments=True,)
+                clean_text = cleaner.clean_html(text).replace('<p>', '').replace('</p>','')
             except Exception:
-                text = ''
+                clean_text = ''
 
-            data[f'PRODUCT DESC {idx + 1}'] = text
+            data[f'PRODUCT DESC {idx + 1}'] = clean_text
 
         self.products_details_output(data)
 

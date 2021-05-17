@@ -41,6 +41,10 @@ class SpokeScraperCore(DataWriter):
         """
         Run all sub_classes
         """
+        CheckoutPage(), print('CheckoutPage done')
+        NotFoundPage(), print('NotFoundPage done')
+        ProductsDetails(), print('ProductsDetails done')
+
         BrandHomePage(), print('BrandHomePage done')
         AboutPage(), print('AboutPage done')
         CareersPage(), print('CareersPage done')
@@ -48,7 +52,6 @@ class SpokeScraperCore(DataWriter):
         ReturnPolicyPage(), print('ReturnPolicyPage done')
         SizeChartsPage(), print('SizeChartsPage done')
         ContactUsPage(), print('ContactUsPage done')
-        # NotFoundPage(), print('NotFoundPage done')
         SubmitRequestPage(), print('SubmitRequestPage done')
         PrivacyPolicyPage(), print('PrivacyPolicyPage done')
         ReferFriendPage(), print('ReferFriendPage done')
@@ -58,7 +61,7 @@ class SpokeScraperCore(DataWriter):
         CookiePolicyPage(), print('CookiePolicyPage done')
         FitFinderPage(), print('FitFinderPage done')
         NPSFeedbackPage(), print('NPSFeedbackPage done')
-        CheckoutPage(), print('CheckoutPage done')
+
         ArrangeReturn(), print('ArrangeReturn done')
 
         LogInPage(), print('LogInPage done')
@@ -70,7 +73,7 @@ class SpokeScraperCore(DataWriter):
         ProductsBenefits(), print('ProductsBenefits done')
         FilterMySize(), print('FilterMySize done')
         ProductsBanners(), print('ProductsBanners done')
-        ProductsDetails(), print('ProductsDetails done')
+
 
 
 if __name__ == '__main__':

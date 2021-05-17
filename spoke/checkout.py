@@ -67,7 +67,7 @@ class CheckoutPage(Settings, DataWriter):
 
         checkout_button_text = checkout_button.text
 
-        time.sleep(1)
+        time.sleep(2)
         checkout_button.click()
         time.sleep(2)
 
