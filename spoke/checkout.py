@@ -54,6 +54,14 @@ class CheckoutPage(Settings, DataWriter):
         add_to_basket_button.click()
         time.sleep(1)
 
+        note1 = "//p[contains(@class, 'cart__delivery')]"
+        note2 = "//p[contains(@class, 'cart__guarantee')]"
+        close_button = "//button[contains(@class, 'cart__keepShopping')]"
+
+        note1 = s.find_element_by_xpath(note1).text
+        note2 = s.find_element_by_xpath(note2).text
+        close_button = s.find_element_by_xpath(close_button).text
+
         checkout_button = "//a[contains(@class, 'cart__button')]"
         checkout_button = WebDriverWait(s, 10).until(EC.visibility_of_element_located((By.XPATH, checkout_button)))
 
@@ -88,6 +96,9 @@ class CheckoutPage(Settings, DataWriter):
         add_button = s.find_element_by_xpath(add_button).text
 
         properties = {
+            'Free Delivery Note': note1,
+            'Return Guarantee Note': note2,
+            'Close Button text': close_button,
             'Checkout button text': checkout_button_text,
             'LEFT Title': title_left,
             'HEADER Text': header,
